@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<info xmlns:xsi= "http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>flow_http_requests</id>
+    <name>HTTP request components for Nextcloud Flow</name>
+    <summary>Provides HTTP request trigger and action for Nextcloud Flow</summary>
+    <description><![CDATA[Provides HTTP request trigger and action for Nextcloud Flow]]></description>
+    <version>0.9.0</version>
+    <licence>agpl</licence>
+    <author mail="blizzz@arthur-schiwon.de" >blizzz</author>
+    <namespace>FlowHttpRequests</namespace>
+    <category>workflow</category>
+    <bugs>https://github.com/nextcloud/flow_http_requests</bugs>
+    <dependencies>
+        <nextcloud min-version="18" max-version="18"/>
+    </dependencies>
+</info>
