@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\FlowHttpRequests\AppInfo;
 
+use OCA\FlowHttpRequests\Flow\ParameterCheck;
 use OCA\FlowHttpRequests\Flow\RequestEntity;
 use OCP\AppFramework\App;
 use OCP\EventDispatcher\IEventDispatcher;
@@ -48,6 +49,16 @@ class Application extends App {
 			/** @var IManager $flowManager */
 			$flowManager = $event->getSubject();
 			$flowManager->registerEntity($entity);
+		});
+
+		$eventDispatcher->addListener(IManager::EVENT_NAME_REG_CHECK, function (GenericEvent $event){
+			$check = $this->getContainer()->query(ParameterCheck::class);
+
+			/** @var IManager $flowManager */
+			$flowManager = $event->getSubject();
+			$flowManager->registerCheck($check);
+
+			\OCP\Util::addScript(self::APP_ID, self::APP_ID);
 		});
 	}
 }
