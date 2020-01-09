@@ -51,7 +51,7 @@ class Application extends App {
 			$flowManager->registerEntity($entity);
 		});
 
-		$eventDispatcher->addListener(IManager::EVENT_NAME_REG_CHECK, function (GenericEvent $event){
+		$eventDispatcher->addListener(IManager::EVENT_NAME_REG_CHECK, function (GenericEvent $event) {
 			$check = $this->getContainer()->query(ParameterCheck::class);
 
 			/** @var IManager $flowManager */

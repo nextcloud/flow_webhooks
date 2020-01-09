@@ -22,25 +22,79 @@
 
 <template>
 	<div>
-		<input type="text"
-			:value="currentValue.pattern"
+		<input v-model="newValue.name"
+			type="text"
 			:placeholder="'parameter name'"
 			@input="updateParameterName">
+		<input v-model="newValue.value"
+			type="text"
+			:placeholder="'value'"
+			@input="updateParameterValue">
 	</div>
 </template>
 
 <script>
 export default {
 	name: 'Parameter',
+	props: {
+		value: {
+			type: String,
+			default: '',
+		},
+		check: {
+			type: Object,
+			default: () => { return {} },
+		},
+	},
+	data() {
+		return {
+			newValue: {
+				name: '',
+				value: '',
+			},
+			valid: true,
+		}
+	},
+	watch: {
+		value: {
+			immediate: true,
+			handler: function(value) {
+				this.updateInternalValue(value)
+			},
+		},
+	},
+	mounted() {
+		this.validate()
+	},
 	methods: {
 		updateParameterName(event) {
-			this.newValue = event.target.value
-			this.$emit('input', this.newValue)
-		}
-	}
+			this.$emit('input', this.formatValue())
+			this.valid = true
+		},
+		updateParameterValue(event) {
+			this.$emit('input', this.formatValue())
+			this.valid = true
+		},
+		formatValue() {
+			return `["${this.newValue.name}","${this.newValue.value}"]`
+		},
+		validate() {
+			this.valid = this.newValue.name && this.newValue.name !== ''
+				&& this.newValue.value && this.newValue.value !== ''
+			if (this.valid) {
+				this.$emit('valid')
+			} else {
+				this.$emit('invalid')
+			}
+			return this.valid
+		},
+		updateInternalValue(value) {
+			const data = JSON.parse(value)
+			this.newValue = {
+				'name': data[0],
+				'value': data[1],
+			}
+		},
+	},
 }
 </script>
-
-<style scoped>
-
-</style>

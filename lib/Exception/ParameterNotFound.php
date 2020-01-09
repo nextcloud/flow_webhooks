@@ -1,3 +1,5 @@
+<?php
+declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2019 Arthur Schiwon <blizzz@arthur-schiwon.de>
  *
@@ -12,26 +14,14 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
-import Parameter from './Checks/Parameter'
+namespace OCA\FlowHttpRequests\Exceptions;
 
-const appId = 'flow_http_requests'
-
-window.OCA.WorkflowEngine.registerCheck({
-	class: 'OCA\\FlowHttpRequests\\Flow\\ParameterCheck',
-	name: t(appId, 'Request parameter'),
-	operators: [
-		{ operator: 'is', name: t(appId, 'is') },
-		{ operator: '!is', name: t(appId, 'is not') },
-		{ operator: 'matches', name: t(appId, 'matches') },
-		{ operator: '!matches', name: t(appId, 'does not match') },
-	],
-	component: Parameter,
-})
+class ParameterNotFound extends \Exception { }
