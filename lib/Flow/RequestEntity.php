@@ -27,11 +27,13 @@ namespace OCA\FlowHttpRequests\Flow;
 use OCA\FlowHttpRequests\Service\EIncomingRequest;
 use OCP\EventDispatcher\Event;
 use OCP\IL10N;
+use OCP\IRequest;
 use OCP\IURLGenerator;
+use OCP\WorkflowEngine\EntityContext\IDisplayText;
 use OCP\WorkflowEngine\IEntity;
 use OCP\WorkflowEngine\IRuleMatcher;
 
-class RequestEntity implements IEntity {
+class RequestEntity implements IEntity, IDisplayText {
 	/**
 	 * @var IL10N
 	 */
@@ -41,9 +43,15 @@ class RequestEntity implements IEntity {
 	 */
 	private $urlGenerator;
 
-	public function __construct(IL10N $l, IURLGenerator $urlGenerator) {
+	/**
+	 * @var IRequest
+	 */
+	private $request;
+
+	public function __construct(IL10N $l, IURLGenerator $urlGenerator, IRequest $request) {
 		$this->l = $l;
 		$this->urlGenerator = $urlGenerator;
+		$this->request = $request;
 	}
 
 	public function getName(): string {
@@ -68,5 +76,14 @@ class RequestEntity implements IEntity {
 	public function isLegitimatedForUserId(string $userId): bool {
 		// FIXME
 		return true;
+	}
+
+	public function getDisplayText(int $verbosity = 0): string {
+		$params = $this->request->getParams();
+		$paramString = '';
+		foreach ($params as $name => $val) {
+			$paramString .= $name . ': ' . $val . PHP_EOL;
+		}
+		return $paramString;
 	}
 }
