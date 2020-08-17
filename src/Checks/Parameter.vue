@@ -58,7 +58,7 @@ export default {
 	watch: {
 		value: {
 			immediate: true,
-			handler: function(value) {
+			handler(value) {
 				this.updateInternalValue(value)
 			},
 		},
