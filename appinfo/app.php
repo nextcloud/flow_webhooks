@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright Copyright (c) 2019 Arthur Schiwon <blizzz@arthur-schiwon.de>
+ * @copyright Copyright (c) 2020 Arthur Schiwon <blizzz@arthur-schiwon.de>
  *
  * @author Arthur Schiwon <blizzz@arthur-schiwon.de>
  *
@@ -22,7 +22,7 @@ declare(strict_types=1);
  *
  */
 
-use OCA\FlowHttpRequests\AppInfo\Application;
+use OCA\FlowWebhooks\AppInfo\Application;
 
 /** @var Application $app */
 $app = \OC::$server->query(Application::class);

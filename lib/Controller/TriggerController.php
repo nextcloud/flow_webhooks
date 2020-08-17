@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright Copyright (c) 2019 Arthur Schiwon <blizzz@arthur-schiwon.de>
+ * @copyright Copyright (c) 2020 Arthur Schiwon <blizzz@arthur-schiwon.de>
  *
  * @author Arthur Schiwon <blizzz@arthur-schiwon.de>
  *
@@ -22,10 +22,10 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\FlowHttpRequests\Controller;
+namespace OCA\FlowWebhooks\Controller;
 
-use OCA\FlowHttpRequests\AppInfo\Application;
-use OCA\FlowHttpRequests\Service\Dispatcher;
+use OCA\FlowWebhooks\AppInfo\Application;
+use OCA\FlowWebhooks\Service\Dispatcher;
 use OCP\AppFramework\Http\DataResponse;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;

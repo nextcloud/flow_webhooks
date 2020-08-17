@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /**
- * @copyright Copyright (c) 2019 Arthur Schiwon <blizzz@arthur-schiwon.de>
+ * @copyright Copyright (c) 2020 Arthur Schiwon <blizzz@arthur-schiwon.de>
  *
  * @author Arthur Schiwon <blizzz@arthur-schiwon.de>
  *
@@ -22,6 +22,6 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\FlowHttpRequests\Exceptions;
+namespace OCA\FlowWebhooks\Exceptions;
 
 class ParameterNotFound extends \Exception { }
