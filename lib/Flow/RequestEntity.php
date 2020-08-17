@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\FlowWebhooks\Flow;
 
-use OCA\FlowWebhooks\Service\EIncomingRequest;
+use OCA\FlowWebhooks\Service\IncomingRequestEvent;
 use OCP\EventDispatcher\Event;
 use OCP\IL10N;
 use OCP\IRequest;
@@ -67,7 +67,7 @@ class RequestEntity implements IEntity, IDisplayText {
 	}
 
 	public function prepareRuleMatcher(IRuleMatcher $ruleMatcher, string $eventName, Event $event): void {
-		if(!$event instanceof EIncomingRequest) {
+		if(!$event instanceof IncomingRequestEvent) {
 			return;
 		}
 		$ruleMatcher->setEntitySubject($this, $event->getSubject());

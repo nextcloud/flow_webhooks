@@ -25,7 +25,7 @@ import Parameter from './Checks/Parameter'
 const appId = 'flow_webhooks'
 
 window.OCA.WorkflowEngine.registerCheck({
-	class: 'OCA\\FlowHttpRequests\\Flow\\ParameterCheck',
+	class: 'OCA\\FlowWebhooks\\Flow\\ParameterCheck',
 	name: t(appId, 'Request parameter'),
 	operators: [
 		{ operator: 'is', name: t(appId, 'is') },

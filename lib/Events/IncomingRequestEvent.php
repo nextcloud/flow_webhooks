@@ -24,15 +24,25 @@ declare(strict_types=1);
 
 namespace OCA\FlowWebhooks\Service;
 
-use OCP\EventDispatcher\GenericEvent;
+use OCP\EventDispatcher\Event;
 use OCP\IRequest;
 
-class EIncomingRequest extends GenericEvent {
-	public const EVENT_NAME = 'FlowHttpRequest::incomingRequest';
+class IncomingRequestEvent extends Event {
+	/** @var IRequest */
+	private $request;
+	/** @var string */
+	private $urlId;
 
-	/** @noinspection PhpMissingParentConstructorInspection */
 	public function __construct(IRequest $request, string $urlId) {
-		$this->subject = $request;
-		$this->arguments['urlId'] = $urlId;
+		$this->request = $request;
+		$this->urlId = $urlId;
+	}
+
+	public function getRequest(): IRequest {
+		return $this->request;
+	}
+
+	public function getUrlId(): string {
+		return $this->urlId;
 	}
 }

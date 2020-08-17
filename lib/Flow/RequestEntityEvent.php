@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\FlowWebhooks\Flow;
 
-use OCA\FlowWebhooks\Service\EIncomingRequest;
+use OCA\FlowWebhooks\Service\IncomingRequestEvent;
 use OCP\IL10N;
 use OCP\WorkflowEngine\IEntityEvent;
 
@@ -42,6 +42,6 @@ class RequestEntityEvent implements IEntityEvent {
 	}
 
 	public function getEventName(): string {
-		return EIncomingRequest::EVENT_NAME;
+		return IncomingRequestEvent::class;
 	}
 }
