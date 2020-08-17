@@ -1,5 +1,5 @@
 {
-	"name": "flow_http_requests",
+	"name": "flow_webhooks",
 	"version": "0.9.0",
 	"description": "HTTP request components for Nextcloud Flow",
 	"main": "webpack.common.js",

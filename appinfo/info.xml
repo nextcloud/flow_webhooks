@@ -10,7 +10,7 @@
     <author mail="blizzz@arthur-schiwon.de" >blizzz</author>
     <namespace>FlowWebhooks</namespace>
     <category>workflow</category>
-    <bugs>https://github.com/nextcloud/flow_http_requests</bugs>
+    <bugs>https://github.com/nextcloud/flow_webhooks</bugs>
     <dependencies>
         <nextcloud min-version="20" max-version="20"/>
     </dependencies>
