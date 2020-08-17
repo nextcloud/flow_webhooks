@@ -22,29 +22,30 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\FlowWebhooks\AppInfo;
+namespace OCA\FlowWebhooks\Listener;
 
-use OCA\FlowWebhooks\Listener\RegisterChecksListener;
-use OCA\FlowWebhooks\Listener\RegisterEntityListener;
-use OCP\AppFramework\App;
-use OCP\AppFramework\Bootstrap\IBootContext;
-use OCP\AppFramework\Bootstrap\IBootstrap;
-use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCA\FlowWebhooks\AppInfo\Application;
+use OCA\FlowWebhooks\Flow\ParameterCheck;
+use OCP\EventDispatcher\Event;
+use OCP\EventDispatcher\IEventListener;
+use OCP\Util;
 use OCP\WorkflowEngine\Events\RegisterChecksEvent;
-use OCP\WorkflowEngine\Events\RegisterEntitiesEvent;
 
-class Application extends App implements IBootstrap {
-	public const APP_ID = 'flow_webhooks';
+class RegisterChecksListener implements IEventListener {
 
-	public function __construct() {
-		parent::__construct(self::APP_ID);
+	/** @var ParameterCheck */
+	private $parameterCheck;
+
+	public function __construct(ParameterCheck $parameterCheck) {
+		$this->parameterCheck = $parameterCheck;
 	}
 
-	public function register(IRegistrationContext $context): void {
-		$context->registerEventListener(RegisterEntitiesEvent::class, RegisterEntityListener::class);
-		$context->registerEventListener(RegisterChecksEvent::class, RegisterChecksListener::class);
-	}
+	public function handle(Event $event): void {
+		if (!($event instanceof RegisterChecksEvent)) {
+			return;
+		}
+		$event->registerCheck($this->parameterCheck);
 
-	public function boot(IBootContext $context): void {
+		Util::addScript(Application::APP_ID, Application::APP_ID);
 	}
 }

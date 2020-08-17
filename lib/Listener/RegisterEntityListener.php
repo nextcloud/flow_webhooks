@@ -22,8 +22,26 @@ declare(strict_types=1);
  *
  */
 
-use OCA\FlowWebhooks\AppInfo\Application;
+namespace OCA\FlowWebhooks\Listener;
 
-/** @var Application $app */
-$app = \OC::$server->query(Application::class);
-$app->registerComponents();
+use OCA\FlowWebhooks\Flow\RequestEntity;
+use OCP\EventDispatcher\Event;
+use OCP\EventDispatcher\IEventListener;
+use OCP\WorkflowEngine\Events\RegisterEntitiesEvent;
+
+class RegisterEntityListener implements IEventListener {
+
+	/** @var RequestEntity */
+	private $requestEntity;
+
+	public function __construct(RequestEntity $requestEntity) {
+		$this->requestEntity = $requestEntity;
+	}
+
+	public function handle(Event $event): void {
+		if(!$event instanceof RegisterEntitiesEvent) {
+			return;
+		}
+		$event->registerEntity($this->requestEntity);
+	}
+}
