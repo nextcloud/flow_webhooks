@@ -22,6 +22,6 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\FlowHttpRequests\Exceptions;
+namespace OCA\FlowWebhooks\Exceptions;
 
 class ParameterNotFound extends \Exception { }

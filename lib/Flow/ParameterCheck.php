@@ -22,9 +22,9 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\FlowHttpRequests\Flow;
+namespace OCA\FlowWebhooks\Flow;
 
-use OCA\FlowHttpRequests\Exceptions\ParameterNotFound;
+use OCA\FlowWebhooks\Exceptions\ParameterNotFound;
 use OCP\IL10N;
 use OCP\ILogger;
 use OCP\IRequest;

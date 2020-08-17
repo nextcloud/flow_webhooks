@@ -22,17 +22,17 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\FlowHttpRequests\AppInfo;
+namespace OCA\FlowWebhooks\AppInfo;
 
-use OCA\FlowHttpRequests\Flow\ParameterCheck;
-use OCA\FlowHttpRequests\Flow\RequestEntity;
+use OCA\FlowWebhooks\Flow\ParameterCheck;
+use OCA\FlowWebhooks\Flow\RequestEntity;
 use OCP\AppFramework\App;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\WorkflowEngine\IManager;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 class Application extends App {
-	public const APP_ID = 'flow_http_requests';
+	public const APP_ID = 'flow_webhooks';
 
 	public function __construct() {
 		parent::__construct(self::APP_ID);

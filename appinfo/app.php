@@ -22,7 +22,7 @@ declare(strict_types=1);
  *
  */
 
-use OCA\FlowHttpRequests\AppInfo\Application;
+use OCA\FlowWebhooks\AppInfo\Application;
 
 /** @var Application $app */
 $app = \OC::$server->query(Application::class);
