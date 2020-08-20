@@ -14,4 +14,8 @@
     <dependencies>
         <nextcloud min-version="20" max-version="20"/>
     </dependencies>
+	<settings>
+		<personal>OCA\FlowWebhooks\Settings\Personal</personal>
+		<personal-section>OCA\FlowWebhooks\Settings\Section</personal-section>
+	</settings>
 </info>

@@ -36,6 +36,9 @@ use OCP\WorkflowEngine\Events\RegisterEntitiesEvent;
 class Application extends App implements IBootstrap {
 	public const APP_ID = 'flow_webhooks';
 
+	public const CONSUMER_TYPE_INSTANCE = 'instance';
+	public const CONSUMER_TYPE_USER = 'user';
+
 	public function __construct() {
 		parent::__construct(self::APP_ID);
 	}

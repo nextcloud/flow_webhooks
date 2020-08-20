@@ -24,6 +24,8 @@ declare(strict_types=1);
 
 namespace OCA\FlowWebhooks\Flow;
 
+use OCA\FlowWebhooks\AppInfo\Application;
+use OCA\FlowWebhooks\Service\Endpoint;
 use OCA\FlowWebhooks\Service\IncomingRequestEvent;
 use OCP\EventDispatcher\Event;
 use OCP\IL10N;
@@ -34,28 +36,26 @@ use OCP\WorkflowEngine\IEntity;
 use OCP\WorkflowEngine\IRuleMatcher;
 
 class RequestEntity implements IEntity, IDisplayText {
-	/**
-	 * @var IL10N
-	 */
+	/** @var string */
+	protected $endpointId;
+	/** @var IL10N */
 	private $l;
-	/**
-	 * @var IURLGenerator
-	 */
+	/** @var IURLGenerator */
 	private $urlGenerator;
-
-	/**
-	 * @var IRequest
-	 */
+	/** @var IRequest */
 	private $request;
+	/** @var Endpoint */
+	private $endpoint;
 
-	public function __construct(IL10N $l, IURLGenerator $urlGenerator, IRequest $request) {
+	public function __construct(IL10N $l, IURLGenerator $urlGenerator, IRequest $request, Endpoint $endpoint) {
 		$this->l = $l;
 		$this->urlGenerator = $urlGenerator;
 		$this->request = $request;
+		$this->endpoint = $endpoint;
 	}
 
 	public function getName(): string {
-		return $this->l->t('Web Request');
+		return $this->l->t('Webhook received');
 	}
 
 	public function getIcon(): string {
@@ -70,12 +70,13 @@ class RequestEntity implements IEntity, IDisplayText {
 		if(!$event instanceof IncomingRequestEvent) {
 			return;
 		}
-		$ruleMatcher->setEntitySubject($this, $event->getSubject());
+		$ruleMatcher->setEntitySubject($this, $event->getRequest());
+		$this->endpointId = $event->getUrlId();
 	}
 
 	public function isLegitimatedForUserId(string $userId): bool {
-		// FIXME
-		return true;
+		$personalId = $this->endpoint->getEndpointId(Application::CONSUMER_TYPE_USER, $userId);
+		return $personalId === $this->endpointId;
 	}
 
 	public function getDisplayText(int $verbosity = 0): string {

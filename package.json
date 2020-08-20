@@ -26,7 +26,10 @@
 	},
 	"homepage": "https://github.com/blizzz/flow_http_requests#readme",
 	"dependencies": {
-		"vue": "^2.6.11"
+		"@nextcloud/initial-state": "^1.1.2",
+		"@nextcloud/vue": "^2.5.0",
+		"vue": "^2.6.11",
+		"vue-clipboard2": "^0.3.1"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.11.1",

@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 return [
 	'ocs' => [
-		['name' => 'Trigger#onGet', 'url' => '/api/v1/f/{urlId}', 'verb' => 'GET'],
-		['name' => 'Trigger#onPost', 'url' => '/api/v1/f/{urlId}', 'verb' => 'POST'],
+		['name' => 'Trigger#onGet', 'url' => '/api/v1/hook/{urlId}', 'verb' => 'GET'],
+		['name' => 'Trigger#onPost', 'url' => '/api/v1/hook/{urlId}', 'verb' => 'POST'],
 	],
 ];

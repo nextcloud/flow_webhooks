@@ -6,12 +6,14 @@ const packageJson = require('./package.json')
 const appName = packageJson.name
 
 const config = {
-	entry: path.join(__dirname, 'src', 'main.js'),
+	entry: {
+		'flow_webhooks': path.join(__dirname, 'src', 'main.js'),
+		'personal_settings': path.join(__dirname, 'src', 'personal_settings.js'),
+	},
 	output: {
 		path: path.resolve(__dirname, './js'),
 		publicPath: '/js/',
-		filename: `${appName}.js`,
-		chunkFilename: 'chunks/[name]-[hash].js'
+		filename: `[name].js`
 	},
 	module: {
 		rules: [

@@ -22,26 +22,9 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\FlowWebhooks\Flow;
+use OCA\FlowWebhooks\AppInfo\Application;
 
-use OCA\FlowWebhooks\Service\IncomingRequestEvent;
-use OCP\IL10N;
-use OCP\WorkflowEngine\IEntityEvent;
+script('flow_webhooks', ['personal_settings']);
 
-class RequestEntityEvent implements IEntityEvent {
-
-	/** @var IL10N */
-	private $l;
-
-	public function __construct(IL10N $l) {
-		$this->l = $l;
-	}
-
-	public function getDisplayName(): string {
-		return $this->l->t('Webhook');
-	}
-
-	public function getEventName(): string {
-		return IncomingRequestEvent::class;
-	}
-}
+?>
+<div id="<?php p(Application::APP_ID); ?>"></div>

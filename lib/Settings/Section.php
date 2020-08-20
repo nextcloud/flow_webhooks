@@ -22,26 +22,38 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\FlowWebhooks\Flow;
+namespace OCA\FlowWebhooks\Settings;
 
-use OCA\FlowWebhooks\Service\IncomingRequestEvent;
+use OCA\FlowWebhooks\AppInfo\Application;
 use OCP\IL10N;
-use OCP\WorkflowEngine\IEntityEvent;
+use OCP\IURLGenerator;
+use OCP\Settings\IIconSection;
 
-class RequestEntityEvent implements IEntityEvent {
+class Section implements IIconSection {
 
 	/** @var IL10N */
 	private $l;
+	/** @var IURLGenerator */
+	private $urlGenerator;
 
-	public function __construct(IL10N $l) {
+	public function __construct(IL10N $l, IURLGenerator $urlGenerator) {
 		$this->l = $l;
+		$this->urlGenerator = $urlGenerator;
 	}
 
-	public function getDisplayName(): string {
-		return $this->l->t('Webhook');
+	public function getIcon() {
+		return $this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg');
 	}
 
-	public function getEventName(): string {
-		return IncomingRequestEvent::class;
+	public function getID() {
+		return 'webhooks';
+	}
+
+	public function getName() {
+		return $this->l->t('Webhooks');
+	}
+
+	public function getPriority() {
+		return 59;
 	}
 }
