@@ -22,7 +22,7 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\FlowWebhooks\Service;
+namespace OCA\FlowWebhooks\Events;
 
 use OCP\EventDispatcher\Event;
 use OCP\IRequest;

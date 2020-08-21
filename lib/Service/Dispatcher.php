@@ -24,6 +24,7 @@ e *
 
 namespace OCA\FlowWebhooks\Service;
 
+use OCA\FlowWebhooks\Events\IncomingRequestEvent;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IRequest;
 

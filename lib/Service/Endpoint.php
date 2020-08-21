@@ -126,7 +126,7 @@ class Endpoint {
 			->where($qb->expr()->eq('endpoint', $qb->createNamedParameter($endpoint)))
 			->setMaxResults(1);
 		$stmt = $qb->execute();
-		return $stmt->fetchColumn()== false;
+		return $stmt->fetchColumn() !== false;
 	}
 
 	protected function setEndpoint(string $endpoint, string $consumerType, ?string $consumerId): bool {
