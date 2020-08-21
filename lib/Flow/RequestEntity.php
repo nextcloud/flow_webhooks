@@ -25,8 +25,8 @@ declare(strict_types=1);
 namespace OCA\FlowWebhooks\Flow;
 
 use OCA\FlowWebhooks\AppInfo\Application;
+use OCA\FlowWebhooks\Events\IncomingRequestEvent;
 use OCA\FlowWebhooks\Service\Endpoint;
-use OCA\FlowWebhooks\Service\IncomingRequestEvent;
 use OCP\EventDispatcher\Event;
 use OCP\IL10N;
 use OCP\IRequest;

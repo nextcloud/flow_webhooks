@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\FlowWebhooks\Flow;
 
-use OCA\FlowWebhooks\Service\IncomingRequestEvent;
+use OCA\FlowWebhooks\Events\IncomingRequestEvent;
 use OCP\IL10N;
 use OCP\WorkflowEngine\IEntityEvent;
 
