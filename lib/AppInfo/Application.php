@@ -26,10 +26,12 @@ namespace OCA\FlowWebhooks\AppInfo;
 
 use OCA\FlowWebhooks\Listener\RegisterChecksListener;
 use OCA\FlowWebhooks\Listener\RegisterEntityListener;
+use OCA\FlowWebhooks\Listener\UserDeletedListener;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
+use OCP\User\Events\UserDeletedEvent;
 use OCP\WorkflowEngine\Events\RegisterChecksEvent;
 use OCP\WorkflowEngine\Events\RegisterEntitiesEvent;
 
@@ -46,6 +48,7 @@ class Application extends App implements IBootstrap {
 	public function register(IRegistrationContext $context): void {
 		$context->registerEventListener(RegisterEntitiesEvent::class, RegisterEntityListener::class);
 		$context->registerEventListener(RegisterChecksEvent::class, RegisterChecksListener::class);
+		$context->registerEventListener(UserDeletedEvent::class, UserDeletedListener::class);
 	}
 
 	public function boot(IBootContext $context): void {

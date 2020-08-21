@@ -24,33 +24,130 @@ declare(strict_types=1);
 
 namespace OCA\FlowWebhooks\Service;
 
+use Doctrine\DBAL\DBALException;
+use DomainException;
+use InvalidArgumentException;
+use LogicException;
 use OCA\FlowWebhooks\AppInfo\Application;
+use OCP\IDBConnection;
 use OCP\IURLGenerator;
+use OCP\Security\ISecureRandom;
+use Psr\Log\LoggerInterface;
 
 class Endpoint {
 	/** @var IURLGenerator */
 	private $urlGenerator;
+	/** @var IDBConnection */
+	private $dbc;
+	/** @var ISecureRandom */
+	private $random;
+	/** @var LoggerInterface */
+	private $logger;
 
-	public function __construct(IURLGenerator $urlGenerator) {
+	public function __construct(
+		IURLGenerator $urlGenerator,
+		IDBConnection $dbc,
+		ISecureRandom $random,
+		LoggerInterface $logger
+	) {
 		$this->urlGenerator = $urlGenerator;
+		$this->dbc = $dbc;
+		$this->random = $random;
+		$this->logger = $logger;
 	}
 
-	public function getEndpointId(string $consumerType, ?string $consumerId) {
+	/**
+	 * @throws InvalidArgumentException
+	 */
+	public function getEndpointId(string $consumerType, ?string $consumerId): string {
 		if(!in_array($consumerType, [Application::CONSUMER_TYPE_INSTANCE, Application::CONSUMER_TYPE_USER])) {
-			throw new \InvalidArgumentException('Invalid consumer type');
+			throw new InvalidArgumentException('Invalid consumer type');
 		}
 
-		return substr(hash('sha256', $consumerType . '_' . (string)$consumerId), 0, 10);
+		try {
+			$endpoint = $this->getEndpointFromDb($consumerType, $consumerId);
+		} catch (DomainException $e) {
+			$attempts = 0;
+			do {
+				$endpoint = $this->random->generate(10, 'abcdefghijklmnopqrstuvwxyz0123456789');
+				$success = $this->setEndpoint($endpoint, $consumerType, $consumerId);
+				$attempts++;
+			} while(!$success && !($attempts === 5));
+			if(!$success) {
+				throw new LogicException('Could not create new endpoint');
+			}
+		}
+
+		return $endpoint;
 	}
 
-	public function getEndpointUrl(string $consumerType, ?string $consumerId) {
+	public function removeEndpointId(string $consumerType, ?string $consumerId): bool {
 		if(!in_array($consumerType, [Application::CONSUMER_TYPE_INSTANCE, Application::CONSUMER_TYPE_USER])) {
-			throw new \InvalidArgumentException('Invalid consumer type');
+			throw new InvalidArgumentException('Invalid consumer type');
 		}
 
-		$routeName = Application::APP_ID . '.Trigger.onGet';
+		$qb = $this->dbc->getQueryBuilder();
+		$qb->delete('flow_webhooks_endpoints')
+			->where($qb->expr()->eq('consumer_type', $qb->createNamedParameter($consumerType)))
+			->andWhere($qb->expr()->eq('consumer_id', $qb->createNamedParameter($consumerId)));
+		return (bool)$qb->execute();
+	}
+
+	/**
+	 * @throws InvalidArgumentException
+	 */
+	public function getEndpointUrl(string $consumerType, ?string $consumerId): string {
 		$urlId = $this->getEndpointId($consumerType, $consumerId);
+		$routeName = Application::APP_ID . '.Trigger.receive';
 
 		return $this->urlGenerator->linkToOCSRouteAbsolute($routeName, ['urlId' => $urlId]);
+	}
+
+	protected function getEndpointFromDb(string $consumerType, ?string $consumerId): string {
+		$qb = $this->dbc->getQueryBuilder();
+		$qb->select(['endpoint'])
+			->from('flow_webhooks_endpoints')
+			->where($qb->expr()->eq('consumer_type', $qb->createNamedParameter($consumerType)))
+			->andWhere($qb->expr()->eq('consumer_id', $qb->createNamedParameter($consumerId)))
+			->setMaxResults(1);
+		$stmt = $qb->execute();
+		$endpoint = $stmt->fetchColumn();
+		if($endpoint && is_string($endpoint) && strlen($endpoint) === 10) {
+			return $endpoint;
+		}
+
+		throw new DomainException();
+	}
+
+	public function endpointExists(string $endpoint): bool {
+		$qb = $this->dbc->getQueryBuilder();
+		$qb->select(['id'])
+			->from('flow_webhooks_endpoints')
+			->where($qb->expr()->eq('endpoint', $qb->createNamedParameter($endpoint)))
+			->setMaxResults(1);
+		$stmt = $qb->execute();
+		return $stmt->fetchColumn()== false;
+	}
+
+	protected function setEndpoint(string $endpoint, string $consumerType, ?string $consumerId): bool {
+		$qb = $this->dbc->getQueryBuilder();
+		$qb->insert('flow_webhooks_endpoints')
+			->values([
+				'endpoint' => $qb->createNamedParameter($endpoint),
+				'consumer_type' => $qb->createNamedParameter($consumerType),
+				'consumer_id' => $qb->createNamedParameter($consumerId)
+			]);
+		try {
+			return (bool)$qb->execute();
+		} catch (DBALException $e) {
+			$this->logger->debug(
+				'Could not insert new Webhook endpoint into DB',
+				[
+					'app' => 'flow_webhooks',
+					'exception' => $e,
+				]
+			);
+			return false;
+		}
 	}
 }

@@ -26,7 +26,8 @@ namespace OCA\FlowWebhooks\Controller;
 
 use OCA\FlowWebhooks\AppInfo\Application;
 use OCA\FlowWebhooks\Service\Dispatcher;
-use OCP\AppFramework\Http\DataResponse;
+use OCA\FlowWebhooks\Service\Endpoint;
+use OCP\AppFramework\Http\Response;
 use OCP\AppFramework\OCSController;
 use OCP\IRequest;
 
@@ -35,29 +36,30 @@ class TriggerController extends OCSController {
 	protected $request;
 	/** @var Dispatcher */
 	private $dispatcher;
+	/** @var Endpoint */
+	private $endpoint;
 
-	public function __construct(IRequest $request, Dispatcher $dispatcher) {
+	public function __construct(IRequest $request, Dispatcher $dispatcher, Endpoint $endpoint) {
 		parent::__construct(Application::APP_ID, $request);
 		$this->request = $request;
 		$this->dispatcher = $dispatcher;
+		$this->endpoint = $endpoint;
 	}
 
 	/**
 	 * @PublicPage
 	 * @NoCSRFRequired
 	 */
-	public function onGet($urlId): DataResponse {
-		$this->dispatcher->dispatch($this->request, $urlId);
-		return new DataResponse();
-	}
-
-	/**
-	 * @PublicPage
-	 * @NoCSRFRequired
-	 */
-	public function onPost($urlId): DataResponse {
-		$this->dispatcher->dispatch($this->request, $urlId);
-		return new DataResponse();
+	public function receive(string $urlId): Response {
+		$status = 400;
+		// "uninvited" requests are discarded
+		if($this->endpoint->endpointExists($urlId)) {
+			$this->dispatcher->dispatch($this->request, $urlId);
+			$status = 200;
+		}
+		$r = new Response();
+		$r->setStatus($status);
+		return $r;
 	}
 
 }

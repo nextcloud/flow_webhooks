@@ -22,8 +22,32 @@ declare(strict_types=1);
  *
  */
 
-return [
-	'ocs' => [
-		['name' => 'Trigger#receive', 'url' => '/api/v1/hook/{urlId}', 'verb' => 'POST'],
-	],
-];
+namespace OCA\FlowWebhooks\Listener;
+
+use OCA\FlowWebhooks\AppInfo\Application;
+use OCA\FlowWebhooks\Service\Endpoint;
+use OCP\EventDispatcher\Event;
+use OCP\EventDispatcher\IEventListener;
+use OCP\User\Events\UserDeletedEvent;
+
+class UserDeletedListener implements IEventListener {
+
+	/** @var Endpoint */
+	private $endpoint;
+
+	public function __construct(Endpoint $endpoint) {
+		$this->endpoint = $endpoint;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function handle(Event $event): void {
+		if(!$event instanceof UserDeletedEvent) {
+			return;
+		}
+
+		$uid = $event->getUser()->getUID();
+		$this->endpoint->removeEndpointId(Application::CONSUMER_TYPE_USER,  $uid);
+	}
+}
