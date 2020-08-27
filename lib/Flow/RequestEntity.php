@@ -59,7 +59,7 @@ class RequestEntity implements IEntity, IDisplayText {
 	}
 
 	public function getIcon(): string {
-		return $this->urlGenerator->imagePath('flow_webhooks', 'app.svg');
+		return $this->urlGenerator->imagePath('flow_webhooks', 'app-dark.svg');
 	}
 
 	public function getEvents(): array {

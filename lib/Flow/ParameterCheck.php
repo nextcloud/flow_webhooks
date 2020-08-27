@@ -119,8 +119,26 @@ class ParameterCheck implements ICheck {
 	 * @throws ParameterNotFound
 	 */
 	protected function getActualValue($parameterName): string {
-		if($this->request instanceof IRequest) {
-			return $this->request->getParam($parameterName, '');
+		$value = null;
+		if ($this->request instanceof IRequest) {
+			$value = (string)$this->request->getParam($parameterName, '');
+		}
+		if ($value === '' && strpos($parameterName, '.')) {
+			$keyStructure = explode('.', $parameterName);
+			$top = array_shift($keyStructure);
+			$sub = $this->request->getParam($top);
+			if (is_array($sub)) {
+				foreach ($keyStructure as $key) {
+					if (is_array($sub) && isset($sub[$key])) {
+						$sub = $sub[$key];
+						continue;
+					}
+					break;
+				}
+				if(!is_array($sub)) {
+					return (string)$sub;
+				}
+			}
 		}
 		throw new ParameterNotFound(sprintf('Parameter %s not found', [$parameterName]));
 	}
