@@ -26,7 +26,9 @@ namespace OCA\FlowWebhooks\Flow;
 
 use OCA\FlowWebhooks\AppInfo\Application;
 use OCA\FlowWebhooks\Events\IncomingRequestEvent;
+use OCA\FlowWebhooks\Model\Profile;
 use OCA\FlowWebhooks\Service\Endpoint;
+use OCA\FlowWebhooks\Service\ProfileManager;
 use OCP\EventDispatcher\Event;
 use OCP\IL10N;
 use OCP\IRequest;
@@ -46,12 +48,15 @@ class RequestEntity implements IEntity, IDisplayText {
 	private $request;
 	/** @var Endpoint */
 	private $endpoint;
+	/** @var ProfileManager */
+	private $profileManager;
 
-	public function __construct(IL10N $l, IURLGenerator $urlGenerator, IRequest $request, Endpoint $endpoint) {
+	public function __construct(IL10N $l, IURLGenerator $urlGenerator, IRequest $request, Endpoint $endpoint, ProfileManager $profileManager) {
 		$this->l = $l;
 		$this->urlGenerator = $urlGenerator;
 		$this->request = $request;
 		$this->endpoint = $endpoint;
+		$this->profileManager = $profileManager;
 	}
 
 	public function getName(): string {
@@ -80,11 +85,48 @@ class RequestEntity implements IEntity, IDisplayText {
 	}
 
 	public function getDisplayText(int $verbosity = 0): string {
+		$profile = $this->profileManager->getMatchingProfile($this->request);
+		if($profile instanceof Profile) {
+			$displayText = $profile->getDisplayTextTemplate($verbosity);
+			preg_match_all('/{{2} ?[a-zA-Z0-9._-]* ?}{2}/', $displayText, $parameterPlaceholders);
+			foreach($parameterPlaceholders as $placeholder) {
+				$parameterName = trim($placeholder, '{} ');
+				$parameterValue = trim($this->getParameterValue($this->request, $parameterName));
+				$displayText = str_replace($placeholder, $parameterValue, $displayText);
+			}
+			return $displayText;
+		}
+
 		$params = $this->request->getParams();
 		$paramString = '';
 		foreach ($params as $name => $val) {
 			$paramString .= $name . ': ' . $val . PHP_EOL;
 		}
 		return $paramString;
+	}
+
+	protected function getParameterValue(IRequest $request, string $parameterName) {
+		$parameterValue = $request->getParam($parameterName);
+		if ($parameterValue === '' && strpos($parameterName, '.')) {
+			$keyStructure = explode('.', $parameterName);
+			$top = array_shift($keyStructure);
+			$sub = $request->getParam($top);
+			if (is_array($sub)) {
+				foreach ($keyStructure as $key) {
+					if (is_array($sub) && isset($sub[$key])) {
+						$sub = $sub[$key];
+						continue;
+					}
+					break;
+				}
+				if(!is_array($sub)) {
+					$parameterValue = (string)$sub;
+				}
+			}
+		}
+		if($parameterValue === '') {
+			$parameterValue = '(?)';
+		}
+		return $parameterValue;
 	}
 }
