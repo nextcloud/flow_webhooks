@@ -24,13 +24,17 @@ declare(strict_types=1);
 
 namespace OCA\FlowWebhooks\Flow;
 
+use OCA\FlowWebhooks\AppInfo\Application;
 use OCA\FlowWebhooks\Exceptions\ParameterNotFound;
+use OCA\FlowWebhooks\Traits\RequestParameterHandling;
 use OCP\IL10N;
-use OCP\ILogger;
 use OCP\IRequest;
 use OCP\WorkflowEngine\ICheck;
+use Psr\Log\LoggerInterface;
 
 class ParameterCheck implements ICheck {
+	use RequestParameterHandling;
+
 	/** @var array[] Nested array: [Pattern => [ActualValue => Regex Result]] */
 	protected $matches;
 
@@ -40,11 +44,11 @@ class ParameterCheck implements ICheck {
 	/** @var IL10N */
 	private $l;
 	/**
-	 * @var ILogger
+	 * @var LoggerInterface
 	 */
 	private $logger;
 
-	public function __construct(IL10N $l, IRequest $request, ILogger $logger) {
+	public function __construct(IL10N $l, IRequest $request, LoggerInterface $logger) {
 		$this->l = $l;
 		$this->request = $request;
 		$this->logger = $logger;
@@ -52,16 +56,18 @@ class ParameterCheck implements ICheck {
 
 	public function executeCheck($operator, $value) {
 		$value = \json_decode($value, true);
-		if(!is_array($value)) {
+		if (!is_array($value)) {
 			return false;
 		}
-		try {
-			$actualValue = $this->getActualValue($value[0]);
-			return $this->executeStringCheck($operator, $value[1], $actualValue);
-		} catch (ParameterNotFound $e) {
-			$this->logger->logException($e, ['level' => ILogger::DEBUG]);
+
+		$actualValue = $this->getParameterValue($this->request, $value[0], null);
+		if ($actualValue === null){
+			$e = new ParameterNotFound(sprintf('Parameter %s not found', [$value[0]]));
+			$this->logger->debug($e->getMessage(), ['exception' => $e, 'app' => Application::APP_ID]);
 			return false;
 		}
+
+		return $this->executeStringCheck($operator, $value[1], $actualValue);
 	}
 
 	public function validateCheck($operator, $value) {
@@ -113,33 +119,5 @@ class ParameterCheck implements ICheck {
 
 	public function isAvailableForScope(int $scope): bool {
 		return true;
-	}
-
-	/**
-	 * @throws ParameterNotFound
-	 */
-	protected function getActualValue($parameterName): string {
-		$value = null;
-		if ($this->request instanceof IRequest) {
-			$value = (string)$this->request->getParam($parameterName, '');
-		}
-		if ($value === '' && strpos($parameterName, '.')) {
-			$keyStructure = explode('.', $parameterName);
-			$top = array_shift($keyStructure);
-			$sub = $this->request->getParam($top);
-			if (is_array($sub)) {
-				foreach ($keyStructure as $key) {
-					if (is_array($sub) && isset($sub[$key])) {
-						$sub = $sub[$key];
-						continue;
-					}
-					break;
-				}
-				if(!is_array($sub)) {
-					return (string)$sub;
-				}
-			}
-		}
-		throw new ParameterNotFound(sprintf('Parameter %s not found', [$parameterName]));
 	}
 }

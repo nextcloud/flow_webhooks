@@ -26,10 +26,12 @@ namespace OCA\FlowWebhooks\Service;
 
 use OCA\FlowWebhooks\Events\RegisterProfile;
 use OCA\FlowWebhooks\Model\Profile;
+use OCA\FlowWebhooks\Traits\RequestParameterHandling;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IRequest;
 
 class ProfileManager {
+	use RequestParameterHandling;
 
 	/** @var IEventDispatcher */
 	private $dispatcher;
@@ -74,25 +76,8 @@ class ProfileManager {
 
 	protected function matchesParameterConstraints(IRequest $request, Profile $profile): bool {
 		foreach ($profile->getParameterConstraints() as $parameterName => $constraints) {
-			$parameterValue = $request->getParam($parameterName);
-			if ($parameterValue === '' && strpos($parameterName, '.')) {
-				$keyStructure = explode('.', $parameterName);
-				$top = array_shift($keyStructure);
-				$sub = $request->getParam($top);
-				if (is_array($sub)) {
-					foreach ($keyStructure as $key) {
-						if (is_array($sub) && isset($sub[$key])) {
-							$sub = $sub[$key];
-							continue;
-						}
-						break;
-					}
-					if(!is_array($sub)) {
-						$parameterValue = (string)$sub;
-					}
-				}
-			}
-			if (empty($parameterValue)) {
+			$parameterValue = $this->getParameterValue($request, $parameterName, null);
+			if($parameterValue === null) {
 				return false;
 			}
 

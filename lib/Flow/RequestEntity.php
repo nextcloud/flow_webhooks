@@ -29,6 +29,7 @@ use OCA\FlowWebhooks\Events\IncomingRequestEvent;
 use OCA\FlowWebhooks\Model\Profile;
 use OCA\FlowWebhooks\Service\Endpoint;
 use OCA\FlowWebhooks\Service\ProfileManager;
+use OCA\FlowWebhooks\Traits\RequestParameterHandling;
 use OCP\EventDispatcher\Event;
 use OCP\IL10N;
 use OCP\IRequest;
@@ -38,6 +39,8 @@ use OCP\WorkflowEngine\IEntity;
 use OCP\WorkflowEngine\IRuleMatcher;
 
 class RequestEntity implements IEntity, IDisplayText {
+	use RequestParameterHandling;
+
 	/** @var string */
 	protected $endpointId;
 	/** @var IL10N */
@@ -85,13 +88,14 @@ class RequestEntity implements IEntity, IDisplayText {
 	}
 
 	public function getDisplayText(int $verbosity = 0): string {
+		// FIXME IPortation!
 		$profile = $this->profileManager->getMatchingProfile($this->request);
 		if($profile instanceof Profile) {
 			$displayText = $profile->getDisplayTextTemplate($verbosity);
 			preg_match_all('/{{2} ?[a-zA-Z0-9._-]* ?}{2}/', $displayText, $parameterPlaceholders);
 			foreach($parameterPlaceholders as $placeholder) {
 				$parameterName = trim($placeholder, '{} ');
-				$parameterValue = trim($this->getParameterValue($this->request, $parameterName));
+				$parameterValue = trim($this->getParameterValue($this->request, $parameterName, '(?)'));
 				$displayText = str_replace($placeholder, $parameterValue, $displayText);
 			}
 			return $displayText;
@@ -105,28 +109,4 @@ class RequestEntity implements IEntity, IDisplayText {
 		return $paramString;
 	}
 
-	protected function getParameterValue(IRequest $request, string $parameterName) {
-		$parameterValue = $request->getParam($parameterName);
-		if ($parameterValue === '' && strpos($parameterName, '.')) {
-			$keyStructure = explode('.', $parameterName);
-			$top = array_shift($keyStructure);
-			$sub = $request->getParam($top);
-			if (is_array($sub)) {
-				foreach ($keyStructure as $key) {
-					if (is_array($sub) && isset($sub[$key])) {
-						$sub = $sub[$key];
-						continue;
-					}
-					break;
-				}
-				if(!is_array($sub)) {
-					$parameterValue = (string)$sub;
-				}
-			}
-		}
-		if($parameterValue === '') {
-			$parameterValue = '(?)';
-		}
-		return $parameterValue;
-	}
 }
