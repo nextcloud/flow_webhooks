@@ -25,37 +25,65 @@ declare(strict_types=1);
 namespace OCA\FlowWebhooks\Model;
 
 class Profile {
+	/** @var array */
 	protected $headerConstraints = [];
+	/** @var array */
 	protected $parameterConstraints = [];
+	/** @var string[] */
 	protected $displayTextTemplates = [''];
+	/** @var string */
+	protected $urlTemplate = '';
+	/** @var string */
+	protected $iconUrlTemplate = '';
 
 	public function getHeaderConstraints(): array {
 		return $this->headerConstraints;
 	}
 
-	public function setHeaderConstraint(string $name, string $pattern): void {
+	public function setHeaderConstraint(string $name, string $pattern): Profile {
 		if(!isset($this->headerConstraints[$name])) {
 			$this->headerConstraints[$name] = [];
 		}
 		$this->headerConstraints[$name][] = $pattern;
+		return $this;
 	}
 
 	public function getParameterConstraints(): array {
 		return $this->parameterConstraints;
 	}
 
-	public function setParameterConstraint(string $name, string $pattern): void {
+	public function setParameterConstraint(string $name, string $pattern): Profile {
 		if(!isset($this->parameterConstraints[$name])) {
 			$this->parameterConstraints[$name] = [];
 		}
 		$this->parameterConstraints[$name][] = $pattern;
+		return $this;
 	}
 
 	public function getDisplayTextTemplate(int $verbosity): string {
 		return $this->displayTextTemplates[$verbosity] ?: $this->displayTextTemplates[0];
 	}
 
-	public function setDisplayTextTemplate(int $verbosity, string $template) {
+	public function setDisplayTextTemplate(int $verbosity, string $template): Profile {
 		$this->displayTextTemplates[$verbosity] = $template;
+		return $this;
+	}
+
+	public function getUrlTemplate(): string {
+		return $this->urlTemplate;
+	}
+
+	public function setUrlTemplate(string $template): Profile {
+		$this->urlTemplate = $template;
+		return $this;
+	}
+
+	public function getIconUrlTemplate(): string {
+		return $this->iconUrlTemplate;
+	}
+
+	public function setIconUrlTemplate(string $template): Profile {
+		$this->iconUrlTemplate = $template;
+		return $this;
 	}
 }

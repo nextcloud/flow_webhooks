@@ -37,10 +37,12 @@ use OCP\IRequest;
 use OCP\IURLGenerator;
 use OCP\WorkflowEngine\EntityContext\IContextPortation;
 use OCP\WorkflowEngine\EntityContext\IDisplayText;
+use OCP\WorkflowEngine\EntityContext\IIcon;
+use OCP\WorkflowEngine\EntityContext\IUrl;
 use OCP\WorkflowEngine\IEntity;
 use OCP\WorkflowEngine\IRuleMatcher;
 
-class RequestEntity implements IEntity, IDisplayText, IContextPortation {
+class RequestEntity implements IEntity, IDisplayText, IContextPortation, IUrl, IIcon {
 	use RequestParameterHandling;
 
 	/** @var string */
@@ -92,14 +94,7 @@ class RequestEntity implements IEntity, IDisplayText, IContextPortation {
 	public function getDisplayText(int $verbosity = 0): string {
 		$profile = $this->profileManager->getMatchingProfile($this->request);
 		if($profile instanceof Profile) {
-			$displayText = $profile->getDisplayTextTemplate($verbosity);
-			preg_match_all('/[{]{2} ?[a-zA-Z0-9._-]* ?[}]{2}/', $displayText, $parameterPlaceholders);
-			foreach($parameterPlaceholders[0] as $placeholder) {
-				$parameterName = trim($placeholder, '{} ');
-				$parameterValue = trim($this->getParameterValue($this->request, $parameterName, '(?)'));
-				$displayText = str_replace($placeholder, $parameterValue, $displayText);
-			}
-			return $displayText;
+			return $this->renderTemplate($profile->getDisplayTextTemplate($verbosity), $profile);
 		}
 
 		$params = $this->request->getParams();
@@ -134,5 +129,31 @@ class RequestEntity implements IEntity, IDisplayText, IContextPortation {
 			$contextIDs['requestHeaders'],
 			$contextIDs['requestParameters']
 		);
+	}
+
+	public function getUrl(): string {
+		$profile = $this->profileManager->getMatchingProfile($this->request);
+		if ($profile instanceof Profile) {
+			return $this->renderTemplate($profile->getUrlTemplate(), $profile);
+		}
+		return '';
+	}
+
+	protected function renderTemplate(string $template, Profile $profile): string {
+		preg_match_all('/[{]{2} ?[a-zA-Z0-9._-]* ?[}]{2}/', $template, $parameterPlaceholders);
+		foreach($parameterPlaceholders[0] as $placeholder) {
+			$parameterName = trim($placeholder, '{} ');
+			$parameterValue = trim($this->getParameterValue($this->request, $parameterName, '(?)'));
+			$template = str_replace($placeholder, $parameterValue, $template);
+		}
+		return $template;
+	}
+
+	public function getIconUrl(): string {
+		$profile = $this->profileManager->getMatchingProfile($this->request);
+		if ($profile instanceof Profile) {
+			return $this->renderTemplate($profile->getIconUrlTemplate(), $profile);
+		}
+		return '';
 	}
 }
