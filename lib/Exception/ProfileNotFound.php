@@ -24,4 +24,4 @@ declare(strict_types=1);
 
 namespace OCA\FlowWebhooks\Exception;
 
-class ParameterNotFound extends \Exception { }
+class ProfileNotFound extends \Exception { }

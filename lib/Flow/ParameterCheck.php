@@ -25,7 +25,7 @@ declare(strict_types=1);
 namespace OCA\FlowWebhooks\Flow;
 
 use OCA\FlowWebhooks\AppInfo\Application;
-use OCA\FlowWebhooks\Exceptions\ParameterNotFound;
+use OCA\FlowWebhooks\Exception\ParameterNotFound;
 use OCA\FlowWebhooks\Traits\RequestParameterHandling;
 use OCP\IL10N;
 use OCP\IRequest;

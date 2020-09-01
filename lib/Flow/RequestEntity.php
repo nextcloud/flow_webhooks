@@ -120,6 +120,7 @@ class RequestEntity implements IEntity, IDisplayText, IContextPortation, IUrl, I
 			'requestId' => $this->request->getId(),
 			'requestHeaders' => $headers,
 			'requestParameters' => $this->request->getParams(),
+			'endpointId' => $this->endpointId,
 		];
 	}
 
@@ -129,6 +130,7 @@ class RequestEntity implements IEntity, IDisplayText, IContextPortation, IUrl, I
 			$contextIDs['requestHeaders'],
 			$contextIDs['requestParameters']
 		);
+		$this->endpointId = $contextIDs['endpointId'];
 	}
 
 	public function getUrl(): string {

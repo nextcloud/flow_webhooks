@@ -35,6 +35,20 @@ class Profile {
 	protected $urlTemplate = '';
 	/** @var string */
 	protected $iconUrlTemplate = '';
+	/** @var string */
+	protected $name = '';
+
+	public function setName(string $name): Profile {
+		if(\mb_strlen($name, 'UTF-8') > 64) {
+			throw new \LengthException('Name must not be longer than 64 bytes');
+		}
+		$this->name = $name;
+		return $this;
+	}
+
+	public function getName(): string {
+		return $this->name;
+	}
 
 	public function getHeaderConstraints(): array {
 		return $this->headerConstraints;
@@ -62,6 +76,10 @@ class Profile {
 
 	public function getDisplayTextTemplate(int $verbosity): string {
 		return $this->displayTextTemplates[$verbosity] ?: $this->displayTextTemplates[0];
+	}
+
+	public function getAllDisplayTestTemplates(): array {
+		return $this->displayTextTemplates;
 	}
 
 	public function setDisplayTextTemplate(int $verbosity, string $template): Profile {

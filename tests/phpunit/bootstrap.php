@@ -22,6 +22,9 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\FlowWebhooks\Exception;
+require_once __DIR__ . '/../../../../tests/bootstrap.php';
+require_once __DIR__.'/../../vendor/autoload.php';
 
-class ParameterNotFound extends \Exception { }
+\OC_App::loadApp('flow_webhooks');
+
+OC_Hook::clear();

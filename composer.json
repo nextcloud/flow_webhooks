@@ -1,0 +1,9 @@
+{
+    "name": "nextcloud/flow_webhooks",
+    "type": "project",
+    "license": "AGPL",
+    "require": {},
+    "require-dev": {
+        "php-parallel-lint/php-parallel-lint": "^1.2"
+    }
+}

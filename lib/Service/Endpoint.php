@@ -112,6 +112,7 @@ class Endpoint {
 			->setMaxResults(1);
 		$stmt = $qb->execute();
 		$endpoint = $stmt->fetchColumn();
+		$stmt->closeCursor();
 		if($endpoint && is_string($endpoint) && strlen($endpoint) === 10) {
 			return $endpoint;
 		}
@@ -126,7 +127,24 @@ class Endpoint {
 			->where($qb->expr()->eq('endpoint', $qb->createNamedParameter($endpoint)))
 			->setMaxResults(1);
 		$stmt = $qb->execute();
-		return $stmt->fetchColumn() !== false;
+		$r = $stmt->fetchColumn() !== false;
+		$stmt->closeCursor();
+		return $r;
+	}
+
+	public function getEndpointOwner(string $endpoint): array {
+		$qb = $this->dbc->getQueryBuilder();
+		$qb->select(['consumer_type', 'consumer_id'])
+			->from('flow_webhooks_endpoints')
+			->where($qb->expr()->eq('endpoint', $qb->createNamedParameter($endpoint)))
+			->setMaxResults(1);
+		$stmt = $qb->execute();
+		$row = $stmt->fetch();
+		$stmt->closeCursor();
+		return [
+			'type' => $row['consumer_type'] ?? null,
+			'id' => $row['id'] ?? null,
+		];
 	}
 
 	protected function setEndpoint(string $endpoint, string $consumerType, ?string $consumerId): bool {
