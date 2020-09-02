@@ -6,7 +6,6 @@ namespace OCA\FlowWebhooks\Migration;
 
 use Closure;
 use Doctrine\DBAL\Types\Types;
-use OCA\WorkflowEngine\AppInfo\Application;
 use OCP\DB\ISchemaWrapper;
 use OCP\Migration\IOutput;
 use OCP\Migration\SimpleMigrationStep;
@@ -94,6 +93,8 @@ class Version010000Date20200820110332 extends SimpleMigrationStep {
 		);
 
 		$table->setPrimaryKey(['id'], 'profilesIdx');
+		// a unique index on owner is not enforced on DB level to be able to
+		// support multiple endpoints per consumer in a future version
 		$table->addIndex(['consumer_type', 'consumer_id'], 'profilesOwnerIdx');
 
 		$this->dirty = true;

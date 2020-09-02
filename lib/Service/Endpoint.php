@@ -88,8 +88,14 @@ class Endpoint {
 
 		$qb = $this->dbc->getQueryBuilder();
 		$qb->delete('flow_webhooks_endpoints')
-			->where($qb->expr()->eq('consumer_type', $qb->createNamedParameter($consumerType)))
-			->andWhere($qb->expr()->eq('consumer_id', $qb->createNamedParameter($consumerId)));
+			->where($qb->expr()->eq('consumer_type', $qb->createNamedParameter($consumerType)));
+
+		if ($consumerId === null) {
+			$qb->andWhere($qb->expr()->isNull('consumer_id'));
+		} else {
+			$qb->andWhere($qb->expr()->eq('consumer_id', $qb->createNamedParameter($consumerId)));
+		}
+
 		return (bool)$qb->execute();
 	}
 
@@ -108,8 +114,14 @@ class Endpoint {
 		$qb->select(['endpoint'])
 			->from('flow_webhooks_endpoints')
 			->where($qb->expr()->eq('consumer_type', $qb->createNamedParameter($consumerType)))
-			->andWhere($qb->expr()->eq('consumer_id', $qb->createNamedParameter($consumerId)))
 			->setMaxResults(1);
+
+		if ($consumerId === null) {
+			$qb->andWhere($qb->expr()->isNull('consumer_id'));
+		} else {
+			$qb->andWhere($qb->expr()->eq('consumer_id', $qb->createNamedParameter($consumerId)));
+		}
+
 		$stmt = $qb->execute();
 		$endpoint = $stmt->fetchColumn();
 		$stmt->closeCursor();

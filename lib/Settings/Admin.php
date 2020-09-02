@@ -28,26 +28,22 @@ use OCA\FlowWebhooks\AppInfo\Application;
 use OCA\FlowWebhooks\Service\Endpoint;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IInitialStateService;
-use OCP\IUserSession;
 use OCP\Settings\ISettings;
 
-class Personal implements ISettings {
+class Admin implements ISettings {
 
 	/** @var IInitialStateService */
 	private $stateService;
 	/** @var Endpoint */
 	private $endpoint;
-	/** @var IUserSession */
-	private $userSession;
 
-	public function __construct(IInitialStateService $stateService, Endpoint $endpoint, IUserSession $userSession) {
+	public function __construct(IInitialStateService $stateService, Endpoint $endpoint) {
 		$this->stateService = $stateService;
 		$this->endpoint = $endpoint;
-		$this->userSession = $userSession;
 	}
 
 	public function getForm() {
-		$endpoint = $this->endpoint->getEndpointUrl(Application::CONSUMER_TYPE_USER, $this->userSession->getUser()->getUID());
+		$endpoint = $this->endpoint->getEndpointUrl(Application::CONSUMER_TYPE_INSTANCE, null);
 		$this->stateService->provideInitialState(Application::APP_ID, 'webhookEndpoint', $endpoint);
 		return new TemplateResponse(Application::APP_ID, 'settings');
 	}
