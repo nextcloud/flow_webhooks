@@ -55,6 +55,15 @@ class EndpointTest extends TestCase {
 		$this->endpoint = new Endpoint($urlGenerator, $dbc, $this->rnd, $logger);
 	}
 
+	public function tearDown(): void {
+		/** @var IDBConnection $dbc */
+		$dbc = \OC::$server->get(IDBConnection::class);
+		$qb = $dbc->getQueryBuilder();
+		$qb->delete('flow_webhooks_endpoints')->execute();
+
+		parent::tearDown();
+	}
+
 	public function consumerProvider(): array {
 		return [
 			[ Application::CONSUMER_TYPE_INSTANCE, null, null ],

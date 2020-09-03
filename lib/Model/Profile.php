@@ -24,7 +24,9 @@ declare(strict_types=1);
 
 namespace OCA\FlowWebhooks\Model;
 
-class Profile {
+use function json_encode;
+
+class Profile implements \JsonSerializable {
 	/** @var array */
 	protected $headerConstraints = [];
 	/** @var array */
@@ -78,7 +80,7 @@ class Profile {
 		return $this->displayTextTemplates[$verbosity] ?: $this->displayTextTemplates[0];
 	}
 
-	public function getAllDisplayTestTemplates(): array {
+	public function getAllDisplayTextTemplates(): array {
 		return $this->displayTextTemplates;
 	}
 
@@ -103,5 +105,16 @@ class Profile {
 	public function setIconUrlTemplate(string $template): Profile {
 		$this->iconUrlTemplate = $template;
 		return $this;
+	}
+
+	public function jsonSerialize() {
+		return [
+			'name' => $this->getName(),
+			'headerConstraints' => $this->getHeaderConstraints(),
+			'parameterConstraints' => $this->getParameterConstraints(),
+			'displayTextTemplates' => $this->getAllDisplayTextTemplates(),
+			'urlTemplate' => $this->getUrlTemplate(),
+			'iconUrlTemplate' => $this->getIconUrlTemplate()
+		];
 	}
 }

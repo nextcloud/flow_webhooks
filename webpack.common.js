@@ -2,13 +2,10 @@ const path = require('path')
 const { VueLoaderPlugin } = require('vue-loader')
 const StyleLintPlugin = require('stylelint-webpack-plugin')
 
-const packageJson = require('./package.json')
-const appName = packageJson.name
-
 const config = {
 	entry: {
 		'flow_webhooks': path.join(__dirname, 'src', 'main.js'),
-		'personal_settings': path.join(__dirname, 'src', 'personal_settings.js'),
+		'settings': path.join(__dirname, 'src', 'settings.js'),
 	},
 	output: {
 		path: path.resolve(__dirname, './js'),

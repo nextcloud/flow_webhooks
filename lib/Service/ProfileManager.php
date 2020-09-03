@@ -70,6 +70,41 @@ class ProfileManager {
 		return null;
 	}
 
+	/**
+	 * @return Profile[]
+	 */
+	public function getOwnerProfiles(string $consumerType, ?string $consumerId): array {
+		$qb = $this->dbc->getQueryBuilder();
+		$qb->select(['*'])
+			->from(self::TABLE_PROFILES)
+			->where($qb->expr()->eq('consumer_type', $qb->createNamedParameter($consumerType)));
+
+		if($consumerId === null) {
+			$qb->andWhere($qb->expr()->isNull('consumer_id'));
+		} else {
+			$qb->andWhere($qb->expr()->eq('consumer_id', $qb->createNamedParameter($consumerId)));
+		}
+
+		$stmt = $qb->execute();
+
+		$results = [];
+		while($profileData = $stmt->fetch()) {
+			$p = new Profile();
+			$this->readHeaderConstraints($p, $profileData['header_constraints']);
+			$this->readParameterConstraints($p, $profileData['param_constraints']);
+			$this->readDisplayTextTemplates($p, $profileData['display_text_templates']);
+			$p
+				->setName($profileData['name'])
+				->setUrlTemplate($profileData['url_template'])
+				->setIconUrlTemplate($profileData['icon_url_template']);
+
+			$results[$profileData['id']] = $p;
+		}
+		$stmt->closeCursor();
+
+		return $results;
+	}
+
 	protected function matchesHeaderConstraints(IRequest $request, Profile $profile): bool {
 		foreach ($profile->getHeaderConstraints() as $headerName => $constraints) {
 			$headerValue = $request->getHeader($headerName);
@@ -217,7 +252,7 @@ class ProfileManager {
 				'consumer_id' => $qb->createNamedParameter($consumerId),
 				'header_constraints' => $qb->createNamedParameter(\json_encode($profile->getHeaderConstraints())),
 				'param_constraints' => $qb->createNamedParameter(\json_encode($profile->getParameterConstraints())),
-				'display_text_templates' => $qb->createNamedParameter(\json_encode($profile->getAllDisplayTestTemplates())),
+				'display_text_templates' => $qb->createNamedParameter(\json_encode($profile->getAllDisplayTextTemplates())),
 				'url_template' => $qb->createNamedParameter($profile->getUrlTemplate()),
 				'icon_url_template' => $qb->createNamedParameter($profile->getIconUrlTemplate())
 			])
@@ -271,7 +306,7 @@ class ProfileManager {
 				->set('name', $qb->createNamedParameter($profile->getName()))
 				->set('header_constraints', $qb->createNamedParameter(\json_encode($profile->getHeaderConstraints())))
 				->set('param_constraints', $qb->createNamedParameter(\json_encode($profile->getParameterConstraints())))
-				->set('display_text_templates', $qb->createNamedParameter(\json_encode($profile->getAllDisplayTestTemplates())))
+				->set('display_text_templates', $qb->createNamedParameter(\json_encode($profile->getAllDisplayTextTemplates())))
 				->set('url_template', $qb->createNamedParameter($profile->getUrlTemplate()))
 				->set('icon_url_template', $qb->createNamedParameter($profile->getIconUrlTemplate()))
 				->where($qb->expr()->eq('id', $qb->createNamedParameter($id)))

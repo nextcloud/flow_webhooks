@@ -1,0 +1,47 @@
+h4, h5 {
+	margin-top: 2ex;
+	margin-bottom: 1.5ex;
+	color: var(--color-text-light);
+}
+
+h4 {
+	margin-top: 0;
+	font-size: 15px;
+}
+
+h5 {
+	font-size: 14px;
+}
+
+.profile-wrapper {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+
+.profile-box {
+	width: 384px;
+	display: inline-block;
+	border-left: 1px dotted;
+	padding-left: 4px;
+}
+
+.col-full {
+	width: 376px;
+	display: inline-block;
+}
+
+.col-dual {
+	width: 184px;
+	display: inline-block;
+}
+
+.col-slim {
+	width: 37px;
+	display: inline-block;
+}
+
+.col-wide {
+	width: 335px;
+	display: inline-block;
+}

@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 use OCA\FlowWebhooks\AppInfo\Application;
 
-script('flow_webhooks', ['personal_settings']);
+script('flow_webhooks', ['settings']);
 
 ?>
 <div id="<?php p(Application::APP_ID); ?>"></div>

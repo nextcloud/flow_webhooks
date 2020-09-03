@@ -58,6 +58,15 @@ class ProfileManagerTest extends TestCase {
 		$this->profileManager = new ProfileManager($this->dispatcher, $dbc, $this->endpoint);
 	}
 
+	public function tearDown(): void {
+		/** @var IDBConnection $dbc */
+		$dbc = \OC::$server->get(IDBConnection::class);
+		$qb = $dbc->getQueryBuilder();
+		$qb->delete('flow_webhooks_profiles')->execute();
+
+		parent::tearDown();
+	}
+
 	public function requestProvider() {
 		$r1 = $this->createMock(IRequest::class);
 		$r1->expects($this->any())

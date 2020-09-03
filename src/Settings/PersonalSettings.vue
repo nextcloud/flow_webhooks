@@ -16,15 +16,18 @@
 		<p>
 			<a href="workflow">{{ t('flow_webhooks', 'Configure webhooks in the Flow settings.') }}</a>
 		</p>
+		<Profiles />
 	</div>
 </template>
 
 <script>
 import { loadState } from '@nextcloud/initial-state'
+import Profiles from '../Components/Profiles'
 
 export default {
 	name: 'PersonalSettings',
 	components: {
+		Profiles,
 	},
 
 	data() {
