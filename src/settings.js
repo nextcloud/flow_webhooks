@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueClipboard from 'vue-clipboard2'
 import PersonalSettings from './Settings/PersonalSettings'
-import { Tooltip } from '@nextcloud/vue'
+import { Tooltip } from '@nextcloud/vue/dist/Directives/Tooltip'
 import store from './store'
 import Vuex from 'vuex'
 
