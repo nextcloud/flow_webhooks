@@ -59,9 +59,9 @@ class Version010000Date20200820110332 extends SimpleMigrationStep {
 				'default' => ''
 			]
 		);
-		$table->setPrimaryKey(['id']);
-		$table->addUniqueIndex(['endpoint']);
-		$table->addIndex(['consumer_type', 'consumer_id']);
+		$table->setPrimaryKey(['id'], 'flow_wh_pri');
+		$table->addUniqueIndex(['endpoint'], 'flow_wh_endpoints');
+		$table->addIndex(['consumer_type', 'consumer_id'], 'flow_wh_consumer');
 
 		return $schema;
 	}
