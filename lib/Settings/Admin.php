@@ -26,6 +26,7 @@ namespace OCA\FlowWebhooks\Settings;
 
 use OCA\FlowWebhooks\AppInfo\Application;
 use OCA\FlowWebhooks\Service\Endpoint;
+use OCA\FlowWebhooks\Service\ProfileManager;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IInitialStateService;
 use OCP\Settings\ISettings;
@@ -36,15 +37,20 @@ class Admin implements ISettings {
 	private $stateService;
 	/** @var Endpoint */
 	private $endpoint;
+	/** @var ProfileManager */
+	private $profileManager;
 
-	public function __construct(IInitialStateService $stateService, Endpoint $endpoint) {
+	public function __construct(IInitialStateService $stateService, Endpoint $endpoint, ProfileManager $profileManager) {
 		$this->stateService = $stateService;
 		$this->endpoint = $endpoint;
+		$this->profileManager = $profileManager;
 	}
 
 	public function getForm() {
 		$endpoint = $this->endpoint->getEndpointUrl(Application::CONSUMER_TYPE_INSTANCE, null);
 		$this->stateService->provideInitialState(Application::APP_ID, 'webhookEndpoint', $endpoint);
+		$profiles = $this->profileManager->getOwnerProfiles(Application::CONSUMER_TYPE_INSTANCE, null);
+		$this->stateService->provideInitialState(Application::APP_ID, 'profiles', $profiles);
 		return new TemplateResponse(Application::APP_ID, 'settings');
 	}
 
