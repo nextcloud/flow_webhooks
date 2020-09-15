@@ -92,7 +92,7 @@ class RequestEntity implements IEntity, IDisplayText, IContextPortation, IUrl, I
 	}
 
 	public function getDisplayText(int $verbosity = 0): string {
-		$profile = $this->profileManager->getMatchingProfile($this->request);
+		$profile = $this->profileManager->getMatchingProfile($this->request, $this->endpointId);
 		if($profile instanceof Profile) {
 			return $this->renderTemplate($profile->getDisplayTextTemplate($verbosity), $profile);
 		}
@@ -106,7 +106,7 @@ class RequestEntity implements IEntity, IDisplayText, IContextPortation, IUrl, I
 	}
 
 	public function exportContextIDs(): array {
-		$profile = $this->profileManager->getMatchingProfile($this->request);
+		$profile = $this->profileManager->getMatchingProfile($this->request, $this->endpointId);
 		$headers = [];
 		if ($profile instanceof Profile) {
 			// IRequest does not offer a method to return all headers
@@ -134,7 +134,7 @@ class RequestEntity implements IEntity, IDisplayText, IContextPortation, IUrl, I
 	}
 
 	public function getUrl(): string {
-		$profile = $this->profileManager->getMatchingProfile($this->request);
+		$profile = $this->profileManager->getMatchingProfile($this->request, $this->endpointId);
 		if ($profile instanceof Profile) {
 			return $this->renderTemplate($profile->getUrlTemplate(), $profile);
 		}
@@ -152,7 +152,7 @@ class RequestEntity implements IEntity, IDisplayText, IContextPortation, IUrl, I
 	}
 
 	public function getIconUrl(): string {
-		$profile = $this->profileManager->getMatchingProfile($this->request);
+		$profile = $this->profileManager->getMatchingProfile($this->request, $this->endpointId);
 		if ($profile instanceof Profile) {
 			return $this->renderTemplate($profile->getIconUrlTemplate(), $profile);
 		}
