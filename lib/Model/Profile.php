@@ -27,6 +27,8 @@ namespace OCA\FlowWebhooks\Model;
 use function json_encode;
 
 class Profile implements \JsonSerializable {
+	/** @var int */
+	protected $id = null;
 	/** @var array */
 	protected $headerConstraints = [];
 	/** @var array */
@@ -40,6 +42,18 @@ class Profile implements \JsonSerializable {
 	/** @var string */
 	protected $name = '';
 
+	public function setId(int $id): Profile {
+		$this->id = $id;
+		return $this;
+	}
+
+	public function getId(): ?int {
+		return $this->id;
+	}
+
+	/**
+	 * @throws \LengthException
+	 */
 	public function setName(string $name): Profile {
 		if(\mb_strlen($name, 'UTF-8') > 64) {
 			throw new \LengthException('Name must not be longer than 64 bytes');
@@ -124,6 +138,7 @@ class Profile implements \JsonSerializable {
 
 	public function jsonSerialize() {
 		return [
+			'id' => $this->getId(),
 			'name' => $this->getName(),
 			'headerConstraints' => $this->getHeaderConstraints(),
 			'parameterConstraints' => $this->getParameterConstraints(),

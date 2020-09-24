@@ -94,6 +94,7 @@ class ProfileManager {
 			$this->readParameterConstraints($p, $profileData['param_constraints']);
 			$this->readDisplayTextTemplates($p, $profileData['display_text_templates']);
 			$p
+				->setId((int)$profileData['id'])
 				->setName($profileData['name'])
 				->setUrlTemplate($profileData['url_template'])
 				->setIconUrlTemplate($profileData['icon_url_template']);
@@ -293,6 +294,7 @@ class ProfileManager {
 		$this->readParameterConstraints($p, $profileData['param_constraints']);
 		$this->readDisplayTextTemplates($p, $profileData['display_text_templates']);
 		$p
+			->setId((int)$profileData['id'])
 			->setName($profileData['name'])
 			->setUrlTemplate($profileData['url_template'])
 			->setIconUrlTemplate($profileData['icon_url_template']);
