@@ -53,15 +53,21 @@ class ProfileController extends OCSController {
 	 * @NoAdminRequired
 	 */
 	public function addProfile(string $name): JSONResponse {
-		$profile = new Profile();
-		$profile->setName($name);
+		try {
+			$profile = new Profile();
+			$profile->setName($name);
 
-		$uid = $this->userSession->getUser()->getUID();
+			$uid = $this->userSession->getUser()->getUID();
 
-		$profileId = $this->manager->insertProfile($profile, Application::CONSUMER_TYPE_USER, $uid);
-		$profile = $this->manager->readProfile($profileId, Application::CONSUMER_TYPE_USER, $uid);
+			$profileId = $this->manager->insertProfile($profile, Application::CONSUMER_TYPE_USER, $uid);
+			$profile = $this->manager->readProfile($profileId, Application::CONSUMER_TYPE_USER, $uid);
 
-		return new JSONResponse($profile);
+			return new JSONResponse($profile);
+		} catch (\Exception $e) {
+			return new JSONResponse([
+				'message' => $e->getMessage()
+			], Http::STATUS_BAD_REQUEST);
+		}
 	}
 
 	/**
