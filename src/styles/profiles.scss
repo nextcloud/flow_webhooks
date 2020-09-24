@@ -15,15 +15,14 @@ h5 {
 
 .profile-wrapper {
 	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
 }
 
 .profile-box {
-	width: 384px;
+	width: 100%;
+	max-width: 500px;
 	display: inline-block;
-	border-left: 1px dotted;
-	padding-left: 4px;
+	border-left: 3px solid var(--color-border);
+	padding-left: 10px;
 }
 
 .col-full {

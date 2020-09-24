@@ -91,10 +91,15 @@ export default {
 		updateInternalValue(value) {
 			const data = JSON.parse(value)
 			this.newValue = {
-				'name': data[0],
-				'value': data[1],
+				name: data[0],
+				value: data[1],
 			}
 		},
 	},
 }
 </script>
+<style scoped>
+input[type=text] {
+	width: 100%
+}
+</style>
