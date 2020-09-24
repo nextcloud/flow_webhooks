@@ -31,6 +31,7 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
 	state: {
 		profiles: loadState('flow_webhooks', 'profiles'),
+		consumer: loadState('flow_webhooks', 'consumer'),
 	},
 	computed: {
 		getApiUrl(profileId) {

@@ -60,6 +60,7 @@ class Personal implements ISettings {
 		$this->stateService->provideInitialState(Application::APP_ID, 'webhookEndpoint', $endpoint);
 		$profiles = $this->profileManager->getOwnerProfiles(Application::CONSUMER_TYPE_USER, $this->userSession->getUser()->getUID());
 		$this->stateService->provideInitialState(Application::APP_ID, 'profiles', $profiles);
+		$this->stateService->provideInitialState(Application::APP_ID, 'consumer', Application::CONSUMER_TYPE_USER);
 		return new TemplateResponse(Application::APP_ID, 'settings');
 	}
 

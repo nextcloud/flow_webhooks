@@ -51,6 +51,7 @@ class Admin implements ISettings {
 		$this->stateService->provideInitialState(Application::APP_ID, 'webhookEndpoint', $endpoint);
 		$profiles = $this->profileManager->getOwnerProfiles(Application::CONSUMER_TYPE_INSTANCE, null);
 		$this->stateService->provideInitialState(Application::APP_ID, 'profiles', $profiles);
+		$this->stateService->provideInitialState(Application::APP_ID, 'consumer', Application::CONSUMER_TYPE_INSTANCE);
 		return new TemplateResponse(Application::APP_ID, 'settings');
 	}
 
