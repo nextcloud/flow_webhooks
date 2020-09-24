@@ -155,7 +155,7 @@ class Endpoint {
 		$stmt->closeCursor();
 		return [
 			'type' => $row['consumer_type'] ?? null,
-			'id' => $row['id'] ?? null,
+			'id' => $row['consumer_id'] ?? null,
 		];
 	}
 
