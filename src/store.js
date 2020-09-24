@@ -55,7 +55,10 @@ const constraintsArrayToObject = (constraints) => {
 	return headers
 }
 
-const profiles = loadState('flow_webhooks', 'profiles')
+let profiles = loadState('flow_webhooks', 'profiles')
+if (Array.isArray(profiles)) {
+	profiles = {}
+}
 Object.keys(profiles).map(function(key, index) {
 	profiles[key] = {
 		...profiles[key],
