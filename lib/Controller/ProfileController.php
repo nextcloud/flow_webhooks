@@ -132,6 +132,8 @@ class ProfileController extends OCSController {
 		$profile->setUrlTemplate($urlTemplate);
 		$profile->setIconUrlTemplate($iconUrlTemplate);
 
+		$this->manager->updateProfile($id, $profile);
+
 		return new JSONResponse([]);
 	}
 }
