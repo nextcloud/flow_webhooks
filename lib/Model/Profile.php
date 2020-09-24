@@ -34,7 +34,7 @@ class Profile implements \JsonSerializable {
 	/** @var array */
 	protected $parameterConstraints = [];
 	/** @var string[] */
-	protected $displayTextTemplates = [''];
+	protected $displayTextTemplates = ['', '', '', ''];
 	/** @var string */
 	protected $urlTemplate = '';
 	/** @var string */
