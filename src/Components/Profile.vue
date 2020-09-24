@@ -191,7 +191,9 @@ export default {
 			this.profile.parameterConstraints.splice(index, 1)
 		},
 		hide() {
-			this.visible = false
+			if (!this.dirty) {
+				this.visible = false
+			}
 		},
 		show() {
 			this.visible = true
