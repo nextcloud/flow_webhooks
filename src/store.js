@@ -33,9 +33,41 @@ const getApiUrl = (profileId) => {
 	return generateOcsUrl('apps/flow_webhooks', 2) + 'api/v1/profile' + (profileId ? '/' + profileId : '')
 }
 
+const constraintObjectToArray = (constraints) => {
+	let headers = []
+	for (const key in constraints) {
+		headers = [...headers, ...constraints[key].map((rule) => ({
+			key,
+			rule,
+		}))]
+	}
+	return headers
+}
+
+const constraintsArrayToObject = (constraints) => {
+	const headers = {}
+	for (const index in constraints) {
+		if (!headers[constraints[index].key]) {
+			headers[constraints[index].key] = []
+		}
+		headers[constraints[index].key].push(constraints[index].rule)
+	}
+	return headers
+}
+
+const profiles = loadState('flow_webhooks', 'profiles')
+Object.keys(profiles).map(function(key, index) {
+	profiles[key] = {
+		...profiles[key],
+		headerConstraints: constraintObjectToArray(profiles[key].headerConstraints),
+		parameterConstraints: constraintObjectToArray(profiles[key].parameterConstraints),
+	}
+})
+console.debug(profiles)
+
 const store = new Vuex.Store({
 	state: {
-		profiles: loadState('flow_webhooks', 'profiles'),
+		profiles,
 		consumer: loadState('flow_webhooks', 'consumer'),
 	},
 	mutations: {
@@ -60,18 +92,28 @@ const store = new Vuex.Store({
 			commit('ADD_PROFILE', result.data)
 		},
 		updateProfile({ commit }, profile) {
-			commit('updateProfile', profile)
+			commit('SET_PROFILE', profile)
 		},
 		async deleteProfile({ commit }, profile) {
 			await axios.delete(getApiUrl(profile.id))
 			commit('REMOVE_PROFILE', profile)
 		},
 		async pushUpdateProfile(context, profile) {
+			context.commit('SET_PROFILE', profile)
 			if (context.state.scope === 0) {
 				await confirmPassword()
 			}
-			await axios.put(getApiUrl(profile.id), profile)
+			await axios.put(getApiUrl(profile.id), {
+				...profile,
+				headerConstraints: constraintsArrayToObject(profile.headerConstraints),
+				parameterConstraints: constraintsArrayToObject(profile.parameterConstraints),
+			})
 			context.commit('SET_PROFILE', profile)
+		},
+	},
+	getters: {
+		getProfile(state) {
+			return (id) => state.profiles[id]
 		},
 	},
 })

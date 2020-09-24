@@ -1,50 +1,79 @@
 <template>
-	<div class="profile-box">
-		<h4 class="profile--header" @click="toggleVisibility">
-			<input v-model="profile.name" type="text" :placeholder="t('flow_webhooks', 'Unnamed profile') + ' ' + profile.id">
+	<div v-click-outside="hide" class="profile-box" @click="show">
+		<h4 class="profile--header">
+			<input v-model="profile.name"
+				type="text"
+				:disabled="loading"
+				:placeholder="t('flow_webhooks', 'Unnamed profile') + ' ' + profile.id"
+				:class="{ 'icon-loading-small': loading }">
 			<input
 				:id="'save-' + id"
 				:value="t('flow_webhooks', 'Save')"
+				:disabled="loading || !dirty"
 				type="button"
 				@click.stop="saveProfile">
 			<input
 				:id="'delete-' + id"
 				:value="t('flow_webhooks', 'Delete')"
+				:disabled="loading"
 				type="button"
 				@click.stop="deleteProfile">
 		</h4>
 		<div v-if="visible" class="profile--details">
-			<h5>Header constraints <button v-tooltip="t('flow_webhooks', 'Add header constraint')" class="icon-add" /></h5>
-			<div v-for="(headerPatterns, headerName) in profile.headerConstraints" :key="headerName">
-				<div v-for="(pattern) in headerPatterns" :key="pattern" style="display: inline-block">
-					<input
-						:id="'header-name-' + id"
-						placeholder="Header name"
-						type="text"
-						:value="headerName">
-					<input
-						:id="'header-pattern-' + id"
-						placeholder="/^(regex)pattern.*/"
-						:value="pattern"
-						type="text">
-				</div>
+			<h5>
+				{{ t('flow_webhooks', 'Header constraints') }}
+				<Actions :disabled="loading">
+					<ActionButton icon="icon-add" @click.stop="addHeaderConstraint">
+						{{ t('flow_webhooks', 'Add header constraint') }}
+					</ActionButton>
+				</Actions>
+			</h5>
+			<div v-for="(headerConstraint, index) in profile.headerConstraints" :key="'headers' + index">
+				<input
+					:id="'header-name-' + index"
+					v-model="headerConstraint.key"
+					placeholder="Header name"
+					:disabled="loading"
+					type="text">
+				<input
+					:id="'header-pattern-' + index"
+					v-model="headerConstraint.rule"
+					placeholder="/^(regex)pattern.*/"
+					:disabled="loading"
+					type="text">
+				<Actions>
+					<ActionButton icon="icon-delete" @click.stop="removeHeaderConstraint(index)">
+						{{ t('flow_webhooks', 'Remove header constraint') }}
+					</ActionButton>
+				</Actions>
 			</div>
-			<h5>Parameter constraints <button v-tooltip="t('flow_webhooks', 'Add parameter constraint')" class="icon-add" /></h5>
-			<div v-for="(parameterPatterns, parameterName) in profile.parameterConstraints" :key="parameterName">
-				<div v-for="(pattern) in parameterPatterns" :key="pattern" style="display: inline-block">
-					<input
-						:id="'param-name-' + id"
-						class="col-dual"
-						placeholder="Parameter name"
-						type="text"
-						:value="parameterName">
-					<input
-						:id="'param-pattern-' + id"
-						class="col-dual"
-						placeholder="/^(regex)pattern.*/"
-						:value="pattern"
-						type="text">
-				</div>
+			<h5>
+				Parameter constraints
+				<Actions>
+					<ActionButton icon="icon-add" :disabled="loading" @click.stop="addParameterConstraint">
+						{{ t('flow_webhooks', 'Add parameter constraint') }}
+					</ActionButton>
+				</Actions>
+			</h5>
+			<div v-for="(parameterConstraint, index) in profile.parameterConstraints" :key="'parameters' + index">
+				<input
+					:id="'param-name-' + index"
+					v-model="parameterConstraint.key"
+					class="col-dual"
+					placeholder="Parameter name"
+					type="text">
+				<input
+					:id="'param-pattern-' + index"
+					v-model="parameterConstraint.rule"
+					class="col-dual"
+					placeholder="/^(regex)pattern.*/"
+					:disabled="loading"
+					type="text">
+				<Actions>
+					<ActionButton icon="icon-delete" :disabled="loading" @click.stop="removeParameterConstraint(index)">
+						{{ t('flow_webhooks', 'Remove parameter constraint') }}
+					</ActionButton>
+				</Actions>
 			</div>
 			<h5>Display text templates</h5>
 			<div>
@@ -59,35 +88,44 @@
 					type="text">{{ verbosityLevel - 1 }}</label>
 				<input
 					:id="'verbosity-level-' + verbosityLevel + '-' + id"
+					v-model="profile.displayTextTemplates[verbosityLevel - 1]"
 					class="col-wide"
+					:disabled="loading"
 					:placeholder="templateTemplate"
-					:value="profile.displayTextTemplates[verbosityLevel - 1] || ''"
 					type="text">
 			</div>
 			<h5>Link template</h5>
 			<input
 				:id="'url-template-' + id"
+				v-model="profile.urlTemplate"
 				class="col-full"
+				:disabled="loading"
 				:placeholder="templateTemplate"
-				:value="profile.urlTemplate"
 				type="text">
 			<h5>Icon-URL template</h5>
 			<input
 				:id="'icon-url-template-' + id"
+				v-model="profile.iconUrlTemplate"
 				class="col-full"
+				:disabled="loading"
 				:placeholder="templateTemplate"
-				:value="profile.iconUrlTemplate"
 				type="text">
 		</div>
 	</div>
 </template>
 
 <script>
+import Actions from '@nextcloud/vue/dist/Components/Actions'
+import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
+
 export default {
 	name: 'Profile',
+	components: {
+		Actions, ActionButton,
+	},
 	props: {
 		id: {
-			type: String,
+			type: Number,
 			required: true,
 		},
 		profile: {
@@ -98,6 +136,8 @@ export default {
 	data() {
 		return {
 			visible: false,
+			dirty: false,
+			loading: false,
 		}
 	},
 	computed: {
@@ -105,35 +145,56 @@ export default {
 			return 'a {{ parameter.value }} template'
 		},
 	},
+	watch: {
+		profile: {
+			handler() {
+				this.dirty = true
+			},
+			deep: true,
+		},
+	},
 	methods: {
 		toggleVisibility() {
 			this.visible = !this.visible
 		},
-		updateProfile() {
-			if (!this.dirty) {
-				this.dirty = true
-			}
-
-			this.error = null
-			this.$store.dispatch('updateProfile', this.profile)
+		addHeaderConstraint() {
+			this.profile.headerConstraints.push({ key: '', rule: '' })
+		},
+		addParameterConstraint() {
+			this.profile.parameterConstraints.push({ key: '', rule: '' })
 		},
 		async saveProfile() {
 			try {
+				this.loading = true
 				await this.$store.dispatch('pushUpdateProfile', this.profile)
 				this.dirty = false
 				this.error = null
-				this.originalProfile = JSON.parse(JSON.stringify(this.profile))
 			} catch (e) {
 				console.error('Failed to save operation', e)
 				this.error = e.response.data.ocs.meta.message
 			}
+			this.loading = false
 		},
 		async deleteProfile() {
 			try {
+				this.loading = true
 				await this.$store.dispatch('deleteProfile', this.profile)
 			} catch (e) {
 				console.error('Failed to remove profile', e)
 			}
+			this.loading = false
+		},
+		removeHeaderConstraint(index) {
+			this.profile.headerConstraints.splice(index, 1)
+		},
+		removeParameterConstraint(index) {
+			this.profile.parameterConstraints.splice(index, 1)
+		},
+		hide() {
+			this.visible = false
+		},
+		show() {
+			this.visible = true
 		},
 	},
 }

@@ -1,11 +1,13 @@
 import Vue from 'vue'
 import VueClipboard from 'vue-clipboard2'
+import ClickOutside from 'vue-click-outside'
 import PersonalSettings from './Settings/PersonalSettings'
-import { Tooltip } from '@nextcloud/vue/dist/Directives/Tooltip'
+import Tooltip from '@nextcloud/vue/dist/Directives/Tooltip'
 import store from './store'
 import Vuex from 'vuex'
 
 Vue.directive('tooltip', Tooltip)
+Vue.directive('click-outside', ClickOutside)
 Vue.use(VueClipboard)
 Vue.use(Vuex)
 

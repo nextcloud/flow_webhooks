@@ -42,14 +42,13 @@ h5 {
 	input[type=text] {
 		flex-grow: 1;
 		border: none;
+		&.icon-loading-small {
+			background-position: calc(100% - 20px);
+		}
 	}
 	&:focus, &:hover {
 		background-color: var(--color-background-dark);
 	}
-}
-
-.profile--details {
-
 }
 
 .col-full {

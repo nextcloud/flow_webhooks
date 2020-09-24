@@ -10,9 +10,9 @@
 			class="profile-wrapper"
 			tag="div"
 			name="slide">
-			<Profile v-for="(profile, profile_id) in profiles"
-				:id="profile_id"
-				:key="profile_id"
+			<Profile v-for="profile in profiles"
+				:id="profile.id"
+				:key="profile.id"
 				:profile="profile" />
 		</transition-group>
 		<p v-else>
