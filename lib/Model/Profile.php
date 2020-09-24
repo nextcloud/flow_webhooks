@@ -64,6 +64,11 @@ class Profile implements \JsonSerializable {
 		return $this;
 	}
 
+	public function clearHeaderConstraints(): Profile {
+		$this->headerConstraints = [];
+		return $this;
+	}
+
 	public function getParameterConstraints(): array {
 		return $this->parameterConstraints;
 	}
@@ -73,6 +78,11 @@ class Profile implements \JsonSerializable {
 			$this->parameterConstraints[$name] = [];
 		}
 		$this->parameterConstraints[$name][] = $pattern;
+		return $this;
+	}
+
+	public function clearParameterConstraints(): Profile {
+		$this->parameterConstraints = [];
 		return $this;
 	}
 
@@ -86,6 +96,11 @@ class Profile implements \JsonSerializable {
 
 	public function setDisplayTextTemplate(int $verbosity, string $template): Profile {
 		$this->displayTextTemplates[$verbosity] = $template;
+		return $this;
+	}
+
+	public function clearDisplayTextTemplate(): Profile {
+		$this->displayTextTemplates = [];
 		return $this;
 	}
 

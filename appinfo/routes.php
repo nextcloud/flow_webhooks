@@ -25,5 +25,9 @@ declare(strict_types=1);
 return [
 	'ocs' => [
 		['name' => 'Trigger#receive', 'url' => '/api/v1/hook/{urlId}', 'verb' => 'POST'],
+
+		['name' => 'Profile#addProfile', 'url' => '/api/v1/profile', 'verb' => 'POST'],
+		['name' => 'Profile#removeProfile', 'url' => '/api/v1/profile/{id}', 'verb' => 'DELETE'],
+		['name' => 'Profile#editProfile', 'url' => '/api/v1/profile/{id}', 'verb' => 'PUT'],
 	],
 ];
