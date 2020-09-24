@@ -1,21 +1,23 @@
 <template>
 	<div id="webhooks_profiles">
-		<div class="section">
-			<h3 class="configured-profiles">
-				{{ t('flow_webhooks', 'Configured profiles') }}
-			</h3>
-			<div class="profile-wrapper">
-				<transition-group v-if="Object.keys(profiles).length > 0" name="slide">
-					<Profile v-for="(profile, profile_id) in profiles"
-						:id="profile_id"
-						:key="profile_id"
-						:profile="profile" />
-				</transition-group>
-				<p v-else>
-					No profiles configured yet
-				</p>
-			</div>
-		</div>
+		<h3 class="configured-profiles">
+			{{ t('flow_webhooks', 'Configured profiles') }}
+		</h3>
+		<button class="profiles--add icon-add" @click="addProfile">
+			{{ t('flow_webhooks', 'Add profile') }}
+		</button>
+		<transition-group v-if="Object.keys(profiles).length > 0"
+			class="profile-wrapper"
+			tag="div"
+			name="slide">
+			<Profile v-for="(profile, profile_id) in profiles"
+				:id="profile_id"
+				:key="profile_id"
+				:profile="profile" />
+		</transition-group>
+		<p v-else>
+			No profiles configured yet
+		</p>
 	</div>
 </template>
 
@@ -32,6 +34,11 @@ export default {
 		...mapState({
 			profiles: 'profiles',
 		}),
+	},
+	methods: {
+		addProfile() {
+			this.$store.dispatch('createProfile', '')
+		},
 	},
 }
 </script>

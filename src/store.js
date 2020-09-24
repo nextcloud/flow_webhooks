@@ -25,46 +25,53 @@ import Vuex from 'vuex'
 import { loadState } from '@nextcloud/initial-state'
 import confirmPassword from '@nextcloud/password-confirmation'
 import axios from '@nextcloud/axios'
+import { generateOcsUrl } from '@nextcloud/router'
 
 Vue.use(Vuex)
+
+const getApiUrl = (profileId) => {
+	return generateOcsUrl('apps/flow_webhooks', 2) + 'api/v1/profile' + (profileId ? '/' + profileId : '')
+}
 
 const store = new Vuex.Store({
 	state: {
 		profiles: loadState('flow_webhooks', 'profiles'),
 		consumer: loadState('flow_webhooks', 'consumer'),
 	},
-	computed: {
-		getApiUrl(profileId) {
-			return 'FIXME'
-		},
-	},
 	mutations: {
-		// TODO: test whether this is working at all
-		updateProfile(state, profile, profileId) {
-			const index = state.profiles.findIndex((item) => profileId === item.id)
+		ADD_PROFILE(state, profile) {
+			Vue.set(state.profiles, profile.id, profile)
+		},
+		SET_PROFILE(state, profile) {
 			const newProfile = Object.assign({}, profile)
-			Vue.set(state.profiles, index, newProfile)
+			Vue.set(state.profiles, profile.id, newProfile)
+		},
+		REMOVE_PROFILE(state, profile) {
+			Vue.delete(state.profiles, profile.id)
 		},
 	},
 	actions: {
-		updateProfile(context, profile, profileId) {
-			context.commit('updateProfile', {
-				...profile,
-				profileId,
-			})
+		async createProfile({ commit }, name) {
+			const newProfile = {
+				id: 0,
+				name,
+			}
+			const result = await axios.post(getApiUrl(), newProfile)
+			commit('ADD_PROFILE', result.data)
 		},
-		async pushUpdateProfile(context, profile, profileId) {
+		updateProfile({ commit }, profile) {
+			commit('updateProfile', profile)
+		},
+		async deleteProfile({ commit }, profile) {
+			await axios.delete(getApiUrl(profile.id))
+			commit('REMOVE_PROFILE', profile)
+		},
+		async pushUpdateProfile(context, profile) {
 			if (context.state.scope === 0) {
 				await confirmPassword()
 			}
-			let result
-			if (profileId < 0) {
-				result = await axios.post(this.getApiUrl(''), profile)
-			} else {
-				result = await axios.put(this.getApiUrl(`/${profileId}`), profile)
-			}
-			Vue.set(profile, 'id', result.data.ocs.data.id)
-			context.commit('updateProfile', profile, profileId)
+			await axios.put(getApiUrl(profile.id), profile)
+			context.commit('SET_PROFILE', profile)
 		},
 	},
 })
