@@ -31,7 +31,9 @@ use OCA\FlowWebhooks\Model\Profile;
 use OCA\FlowWebhooks\Traits\RequestParameterHandling;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IDBConnection;
+use OCP\IGroupManager;
 use OCP\IRequest;
+use OCP\IUser;
 
 class ProfileManager {
 	use RequestParameterHandling;
@@ -44,11 +46,19 @@ class ProfileManager {
 	private $dbc;
 	/** @var Endpoint */
 	private $endpoint;
+	/** @var IGroupManager */
+	private $groupManager;
 
-	public function __construct(IEventDispatcher $dispatcher, IDBConnection $dbc, Endpoint $endpoint) {
+	public function __construct(
+		IEventDispatcher $dispatcher,
+		IDBConnection $dbc,
+		Endpoint $endpoint,
+		IGroupManager $groupManager
+	) {
 		$this->dispatcher = $dispatcher;
 		$this->dbc = $dbc;
 		$this->endpoint = $endpoint;
+		$this->groupManager = $groupManager;
 	}
 
 	/** @var Profile[]  */
@@ -245,6 +255,10 @@ class ProfileManager {
 	}
 
 	public function insertProfile(Profile $profile, string $consumerType, ?string $consumerId): int {
+		if($consumerType === Application::CONSUMER_TYPE_INSTANCE && $consumerId !== null) {
+			$consumerId = null;
+		}
+
 		$qb = $this->dbc->getQueryBuilder();
 		$affected = $qb->insert(self::TABLE_PROFILES)
 			->values([
@@ -268,6 +282,10 @@ class ProfileManager {
 	 * @throws ProfileNotFound
 	 */
 	public function readProfile(int $id, string $consumerType, ?string $consumerId) {
+		if($consumerType === Application::CONSUMER_TYPE_INSTANCE && $consumerId !== null) {
+			$consumerId = null;
+		}
+
 		$qb = $this->dbc->getQueryBuilder();
 		$qb->select(['*'])
 			->from(self::TABLE_PROFILES)
@@ -320,5 +338,27 @@ class ProfileManager {
 		return $qb->delete(self::TABLE_PROFILES)
 			->where($qb->expr()->eq('id', $qb->createNamedParameter($id)))
 			->execute() > 0;
+	}
+
+	/**
+	 * @throw \InvalidArgumentException
+	 */
+	public function canEditProfile(IUser $user, string $consumerType, ?int $endpointId): bool {
+		if($consumerType === Application::CONSUMER_TYPE_INSTANCE) {
+			// currently, only admins can manipulate instance profiles
+			return $this->groupManager->isAdmin($user->getUID());
+		} else if($consumerType === Application::CONSUMER_TYPE_USER) {
+			try {
+				if($endpointId === null) {
+					// any user can create manage their flows
+					return true;
+				}
+				$this->readProfile($endpointId, $consumerType, $user->getUID());
+				return true;
+			} catch (ProfileNotFound $e) {
+				return false;
+			}
+		}
+		throw  new \InvalidArgumentException('Invalid consumer type');
 	}
 }

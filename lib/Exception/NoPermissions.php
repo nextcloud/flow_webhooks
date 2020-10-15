@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 /**
  * @copyright Copyright (c) 2020 Arthur Schiwon <blizzz@arthur-schiwon.de>
@@ -22,33 +23,6 @@ declare(strict_types=1);
  *
  */
 
-return [
-	'ocs' => [
-		['name' => 'Trigger#receive', 'url' => '/api/v1/hook/{urlId}', 'verb' => 'POST'],
+namespace OCA\FlowWebhooks\Exception;
 
-		[
-			'name' => 'Profile#addProfile',
-			'url' => '/api/v1/profile/{consumerType}',
-			'verb' => 'POST',
-			'requirements' => [
-				'consumerType' => '(user|instance)'
-			]
-		],
-		[
-			'name' => 'Profile#removeProfile',
-			'url' => '/api/v1/profile/{consumerType}/{profileId}',
-			'verb' => 'DELETE',
-			'requirements' => [
-				'consumerType' => '(user|instance)'
-			]
-		],
-		[
-			'name' => 'Profile#editProfile',
-			'url' => '/api/v1/profile/{consumerType}/{profileId}',
-			'verb' => 'PUT',
-			'requirements' => [
-				'consumerType' => '(user|instance)'
-			]
-		],
-	],
-];
+class NoPermissions extends \Exception { }

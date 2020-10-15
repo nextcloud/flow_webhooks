@@ -29,8 +29,8 @@ import { generateOcsUrl } from '@nextcloud/router'
 
 Vue.use(Vuex)
 
-const getApiUrl = (profileId) => {
-	return generateOcsUrl('apps/flow_webhooks', 2) + 'api/v1/profile' + (profileId ? '/' + profileId : '')
+const getApiUrl = (consumer, profileId) => {
+	return generateOcsUrl('apps/flow_webhooks', 2) + 'api/v1/profile/' + consumer + (profileId ? '/' + profileId : '')
 }
 
 const constraintObjectToArray = (constraints) => {
@@ -66,7 +66,6 @@ Object.keys(profiles).map(function(key, index) {
 		parameterConstraints: constraintObjectToArray(profiles[key].parameterConstraints),
 	}
 })
-console.debug(profiles)
 
 const store = new Vuex.Store({
 	state: {
@@ -91,14 +90,14 @@ const store = new Vuex.Store({
 				id: 0,
 				name,
 			}
-			const result = await axios.post(getApiUrl(), newProfile)
+			const result = await axios.post(getApiUrl(this.state.consumer), newProfile)
 			commit('ADD_PROFILE', result.data)
 		},
 		updateProfile({ commit }, profile) {
 			commit('SET_PROFILE', profile)
 		},
 		async deleteProfile({ commit }, profile) {
-			await axios.delete(getApiUrl(profile.id))
+			await axios.delete(getApiUrl(this.state.consumer, profile.id))
 			commit('REMOVE_PROFILE', profile)
 		},
 		async pushUpdateProfile(context, profile) {
@@ -106,7 +105,7 @@ const store = new Vuex.Store({
 			if (context.state.scope === 0) {
 				await confirmPassword()
 			}
-			await axios.put(getApiUrl(profile.id), {
+			await axios.put(getApiUrl(this.state.consumer, profile.id), {
 				...profile,
 				headerConstraints: constraintsArrayToObject(profile.headerConstraints),
 				parameterConstraints: constraintsArrayToObject(profile.parameterConstraints),

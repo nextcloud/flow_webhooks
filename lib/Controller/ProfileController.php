@@ -51,16 +51,17 @@ class ProfileController extends OCSController {
 
 	/**
 	 * @NoAdminRequired
+	 * @RequireProfileEditAccess
 	 */
-	public function addProfile(string $name): JSONResponse {
+	public function addProfile(string $consumerType, string $name): JSONResponse {
 		try {
 			$profile = new Profile();
 			$profile->setName($name);
 
 			$uid = $this->userSession->getUser()->getUID();
 
-			$profileId = $this->manager->insertProfile($profile, Application::CONSUMER_TYPE_USER, $uid);
-			$profile = $this->manager->readProfile($profileId, Application::CONSUMER_TYPE_USER, $uid);
+			$profileId = $this->manager->insertProfile($profile, $consumerType, $uid);
+			$profile = $this->manager->readProfile($profileId, $consumerType, $uid);
 
 			return new JSONResponse($profile);
 		} catch (\Exception $e) {
@@ -72,13 +73,14 @@ class ProfileController extends OCSController {
 
 	/**
 	 * @NoAdminRequired
+	 * @RequireProfileEditAccess
 	 */
-	public function removeProfile(int $id): JSONResponse {
+	public function removeProfile(string $consumerType, int $profileId): JSONResponse {
 		$uid = $this->userSession->getUser()->getUID();
 
 		try {
-			$profile = $this->manager->readProfile($id, Application::CONSUMER_TYPE_USER, $uid);
-			$this->manager->deleteProfile($id);
+			$this->manager->readProfile($profileId, $consumerType, $uid);
+			$this->manager->deleteProfile($profileId);
 		} catch (ProfileNotFound $e) {
 			return new JSONResponse([], Http::STATUS_NOT_FOUND);
 		}
@@ -88,9 +90,11 @@ class ProfileController extends OCSController {
 
 	/**
 	 * @NoAdminRequired
+	 * @RequireProfileEditAccess
 	 */
 	public function editProfile(
-		int $id,
+		string $consumerType,
+		int $profileId,
 		string $name,
 		array $headerConstraints,
 		array $parameterConstraints,
@@ -101,7 +105,7 @@ class ProfileController extends OCSController {
 		$uid = $this->userSession->getUser()->getUID();
 
 		try {
-			$profile = $this->manager->readProfile($id, Application::CONSUMER_TYPE_USER, $uid);
+			$profile = $this->manager->readProfile($profileId, $consumerType, $uid);
 		} catch (ProfileNotFound $e) {
 			return new JSONResponse([], Http::STATUS_NOT_FOUND);
 		}
@@ -132,7 +136,7 @@ class ProfileController extends OCSController {
 		$profile->setUrlTemplate($urlTemplate);
 		$profile->setIconUrlTemplate($iconUrlTemplate);
 
-		$this->manager->updateProfile($id, $profile);
+		$this->manager->updateProfile($profileId, $profile);
 
 		return new JSONResponse([]);
 	}
