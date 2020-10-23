@@ -1,9 +1,6 @@
 kind: pipeline
 name: compatibility
 
-clone:
-    depth: 1
-
 steps:
     - name: app-code-check
       image: nextcloudci/php7.2:php7.2-14
@@ -56,9 +53,6 @@ trigger:
 ---
 kind: pipeline
 name: tests-master
-
-clone:
-    depth: 1
 
 steps:
     - name: php7.2-sqlite
@@ -119,8 +113,6 @@ type: docker
 ---
 kind: pipeline
 name: postgres-11
-clone:
-  depth: 1
 
 steps:
   - name: php7.4-postgres
@@ -158,8 +150,6 @@ type: docker
 ---
 kind: pipeline
 name: mysql-8.0
-clone:
-  depth: 1
 
 steps:
   - name: php7.4-mysql
