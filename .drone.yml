@@ -3,7 +3,7 @@ name: compatibility
 
 steps:
     - name: app-code-check
-      image: nextcloudci/php7.2:php7.2-14
+      image: nextcloudci/php7.3:php7.3-5
       environment:
           APP_NAME: flow_webhooks
           CORE_BRANCH: master
@@ -18,7 +18,7 @@ steps:
         image: nextcloudci/php7.2:php7.2-14
         environment:
             APP_NAME: flow_webhooks
-            CORE_BRANCH: master
+            CORE_BRANCH: stable20
             DB: sqlite
         commands:
             - composer install
@@ -55,21 +55,6 @@ kind: pipeline
 name: tests-master
 
 steps:
-    - name: php7.2-sqlite
-      image: nextcloudci/php7.2:php7.2-14
-      environment:
-          APP_NAME: flow_webhooks
-          CORE_BRANCH: master
-          DB: sqlite
-      commands:
-          - wget https://raw.githubusercontent.com/nextcloud/travis_ci/master/before_install.sh
-          - bash ./before_install.sh $APP_NAME $CORE_BRANCH $DB
-          - cd ../server
-          - php occ app:enable $APP_NAME
-          - cd apps/$APP_NAME
-          - composer install
-          - cd tests/phpunit/
-          - phpunit --configuration phpunit.xml
     - name: php7.3-sqlite
       image: nextcloudci/php7.3:php7.3-5
       environment:
@@ -107,6 +92,65 @@ trigger:
     event:
         - pull_request
         - push
+
+type: docker
+---
+kind: pipeline
+name: tests-stable20
+
+steps:
+  - name: php7.2-sqlite
+    image: nextcloudci/php7.2:php7.2-14
+    environment:
+      APP_NAME: flow_webhooks
+      CORE_BRANCH: stable20
+      DB: sqlite
+    commands:
+      - wget https://raw.githubusercontent.com/nextcloud/travis_ci/master/before_install.sh
+      - bash ./before_install.sh $APP_NAME $CORE_BRANCH $DB
+      - cd ../server
+      - php occ app:enable $APP_NAME
+      - cd apps/$APP_NAME
+      - composer install
+      - cd tests/phpunit/
+      - phpunit --configuration phpunit.xml
+  - name: php7.3-sqlite
+    image: nextcloudci/php7.3:php7.3-5
+    environment:
+      APP_NAME: flow_webhooks
+      CORE_BRANCH: stable20
+      DB: sqlite
+    commands:
+      - wget https://raw.githubusercontent.com/nextcloud/travis_ci/master/before_install.sh
+      - bash ./before_install.sh $APP_NAME $CORE_BRANCH $DB
+      - cd ../server
+      - php occ app:enable $APP_NAME
+      - cd apps/$APP_NAME
+      - composer install
+      - cd tests/phpunit/
+      - phpunit --configuration phpunit.xml
+  - name: php7.4-sqlite
+    image: nextcloudci/php7.4:php7.4-2
+    environment:
+      APP_NAME: flow_webhooks
+      CORE_BRANCH: stable20
+      DB: sqlite
+    commands:
+      - wget https://raw.githubusercontent.com/nextcloud/travis_ci/master/before_install.sh
+      - bash ./before_install.sh $APP_NAME $CORE_BRANCH $DB
+      - cd ../server
+      - php occ app:enable $APP_NAME
+      - cd apps/$APP_NAME
+      - composer install
+      - cd tests/phpunit/
+      - phpunit --configuration phpunit.xml
+
+trigger:
+  branch:
+    - master
+  event:
+    - pull_request
+    - push
 
 type: docker
 
