@@ -88,8 +88,14 @@ class Endpoint {
 
 		$qb = $this->dbc->getQueryBuilder();
 		$qb->delete('flow_webhooks_endpoints')
-			->where($qb->expr()->eq('consumer_type', $qb->createNamedParameter($consumerType)))
-			->andWhere($qb->expr()->eq('consumer_id', $qb->createNamedParameter($consumerId)));
+			->where($qb->expr()->eq('consumer_type', $qb->createNamedParameter($consumerType)));
+
+		if ($consumerId === null) {
+			$qb->andWhere($qb->expr()->isNull('consumer_id'));
+		} else {
+			$qb->andWhere($qb->expr()->eq('consumer_id', $qb->createNamedParameter($consumerId)));
+		}
+
 		return (bool)$qb->execute();
 	}
 
@@ -108,10 +114,17 @@ class Endpoint {
 		$qb->select(['endpoint'])
 			->from('flow_webhooks_endpoints')
 			->where($qb->expr()->eq('consumer_type', $qb->createNamedParameter($consumerType)))
-			->andWhere($qb->expr()->eq('consumer_id', $qb->createNamedParameter($consumerId)))
 			->setMaxResults(1);
+
+		if ($consumerId === null) {
+			$qb->andWhere($qb->expr()->isNull('consumer_id'));
+		} else {
+			$qb->andWhere($qb->expr()->eq('consumer_id', $qb->createNamedParameter($consumerId)));
+		}
+
 		$stmt = $qb->execute();
 		$endpoint = $stmt->fetchColumn();
+		$stmt->closeCursor();
 		if($endpoint && is_string($endpoint) && strlen($endpoint) === 10) {
 			return $endpoint;
 		}
@@ -126,7 +139,24 @@ class Endpoint {
 			->where($qb->expr()->eq('endpoint', $qb->createNamedParameter($endpoint)))
 			->setMaxResults(1);
 		$stmt = $qb->execute();
-		return $stmt->fetchColumn() !== false;
+		$r = $stmt->fetchColumn() !== false;
+		$stmt->closeCursor();
+		return $r;
+	}
+
+	public function getEndpointOwner(string $endpoint): array {
+		$qb = $this->dbc->getQueryBuilder();
+		$qb->select(['consumer_type', 'consumer_id'])
+			->from('flow_webhooks_endpoints')
+			->where($qb->expr()->eq('endpoint', $qb->createNamedParameter($endpoint)))
+			->setMaxResults(1);
+		$stmt = $qb->execute();
+		$row = $stmt->fetch();
+		$stmt->closeCursor();
+		return [
+			'type' => $row['consumer_type'] ?? null,
+			'id' => $row['consumer_id'] ?? null,
+		];
 	}
 
 	protected function setEndpoint(string $endpoint, string $consumerType, ?string $consumerId): bool {

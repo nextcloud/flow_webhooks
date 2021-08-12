@@ -22,6 +22,9 @@ declare(strict_types=1);
  *
  */
 
-namespace OCA\FlowWebhooks\Exception;
+use OCA\FlowWebhooks\AppInfo\Application;
 
-class ParameterNotFound extends \Exception { }
+script('flow_webhooks', ['settings']);
+
+?>
+<div id="<?php p(Application::APP_ID); ?>"></div>

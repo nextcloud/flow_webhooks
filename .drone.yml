@@ -1,0 +1,233 @@
+kind: pipeline
+name: compatibility
+
+steps:
+    - name: app-code-check
+      image: nextcloudci/php7.3:php7.3-5
+      environment:
+          APP_NAME: flow_webhooks
+          CORE_BRANCH: master
+          DB: sqlite
+      commands:
+          - wget https://raw.githubusercontent.com/nextcloud/travis_ci/master/before_install.sh
+          - bash ./before_install.sh $APP_NAME $CORE_BRANCH $DB
+          - cd ../server
+          - ./occ app:check-code $APP_NAME -c strong-comparison -c deprecation
+          - cd apps/$APP_NAME/
+    -   name: syntax-php7.2
+        image: nextcloudci/php7.2:php7.2-14
+        environment:
+            APP_NAME: flow_webhooks
+            CORE_BRANCH: stable20
+            DB: sqlite
+        commands:
+            - composer install
+            - ./vendor/bin/parallel-lint --exclude ./vendor/ .
+    -   name: syntax-php7.3
+        image: nextcloudci/php7.3:php7.3-5
+        environment:
+            APP_NAME: flow_webhooks
+            CORE_BRANCH: master
+            DB: sqlite
+        commands:
+            - composer install
+            - ./vendor/bin/parallel-lint --exclude ./vendor/ .
+    -   name: syntax-php7.4
+        image: nextcloudci/php7.4:php7.4-2
+        environment:
+            APP_NAME: flow_webhooks
+            CORE_BRANCH: master
+            DB: sqlite
+        commands:
+            - composer install
+            - ./vendor/bin/parallel-lint --exclude ./vendor/ .
+
+type: docker
+trigger:
+  branch:
+    - master
+  event:
+    - pull_request
+    - push
+
+---
+kind: pipeline
+name: tests-master
+
+steps:
+    - name: php7.3-sqlite
+      image: nextcloudci/php7.3:php7.3-5
+      environment:
+          APP_NAME: flow_webhooks
+          CORE_BRANCH: master
+          DB: sqlite
+      commands:
+          - wget https://raw.githubusercontent.com/nextcloud/travis_ci/master/before_install.sh
+          - bash ./before_install.sh $APP_NAME $CORE_BRANCH $DB
+          - cd ../server
+          - php occ app:enable $APP_NAME
+          - cd apps/$APP_NAME
+          - composer install
+          - cd tests/phpunit/
+          - phpunit --configuration phpunit.xml
+    - name: php7.4-sqlite
+      image: nextcloudci/php7.4:php7.4-2
+      environment:
+          APP_NAME: flow_webhooks
+          CORE_BRANCH: master
+          DB: sqlite
+      commands:
+          - wget https://raw.githubusercontent.com/nextcloud/travis_ci/master/before_install.sh
+          - bash ./before_install.sh $APP_NAME $CORE_BRANCH $DB
+          - cd ../server
+          - php occ app:enable $APP_NAME
+          - cd apps/$APP_NAME
+          - composer install
+          - cd tests/phpunit/
+          - phpunit --configuration phpunit.xml
+
+trigger:
+    branch:
+        - master
+    event:
+        - pull_request
+        - push
+
+type: docker
+---
+kind: pipeline
+name: tests-stable20
+
+steps:
+  - name: php7.2-sqlite
+    image: nextcloudci/php7.2:php7.2-14
+    environment:
+      APP_NAME: flow_webhooks
+      CORE_BRANCH: stable20
+      DB: sqlite
+    commands:
+      - wget https://raw.githubusercontent.com/nextcloud/travis_ci/master/before_install.sh
+      - bash ./before_install.sh $APP_NAME $CORE_BRANCH $DB
+      - cd ../server
+      - php occ app:enable $APP_NAME
+      - cd apps/$APP_NAME
+      - composer install
+      - cd tests/phpunit/
+      - phpunit --configuration phpunit.xml
+  - name: php7.3-sqlite
+    image: nextcloudci/php7.3:php7.3-5
+    environment:
+      APP_NAME: flow_webhooks
+      CORE_BRANCH: stable20
+      DB: sqlite
+    commands:
+      - wget https://raw.githubusercontent.com/nextcloud/travis_ci/master/before_install.sh
+      - bash ./before_install.sh $APP_NAME $CORE_BRANCH $DB
+      - cd ../server
+      - php occ app:enable $APP_NAME
+      - cd apps/$APP_NAME
+      - composer install
+      - cd tests/phpunit/
+      - phpunit --configuration phpunit.xml
+  - name: php7.4-sqlite
+    image: nextcloudci/php7.4:php7.4-2
+    environment:
+      APP_NAME: flow_webhooks
+      CORE_BRANCH: stable20
+      DB: sqlite
+    commands:
+      - wget https://raw.githubusercontent.com/nextcloud/travis_ci/master/before_install.sh
+      - bash ./before_install.sh $APP_NAME $CORE_BRANCH $DB
+      - cd ../server
+      - php occ app:enable $APP_NAME
+      - cd apps/$APP_NAME
+      - composer install
+      - cd tests/phpunit/
+      - phpunit --configuration phpunit.xml
+
+trigger:
+  branch:
+    - master
+  event:
+    - pull_request
+    - push
+
+type: docker
+
+---
+kind: pipeline
+name: postgres-11
+
+steps:
+  - name: php7.4-postgres
+    image: nextcloudci/php7.4:php7.4-2
+    environment:
+      APP_NAME: flow_webhooks
+      CORE_BRANCH: master
+      DB: postgres
+    commands:
+      - bash ./tests/drone-server-setup.sh $APP_NAME $CORE_BRANCH $DB
+      - cd ../server
+      - php occ app:enable $APP_NAME
+      - cd apps/$APP_NAME
+      - composer install
+      - cd tests/phpunit/
+      - phpunit --configuration phpunit.xml
+
+services:
+  - name: postgres
+    image: postgres:11
+    environment:
+      POSTGRES_USER: oc_autotest
+      POSTGRES_DB: oc_autotest_dummy
+      POSTGRES_PASSWORD: owncloud
+
+trigger:
+  branch:
+    - master
+  event:
+    - pull_request
+    - push
+
+type: docker
+
+---
+kind: pipeline
+name: mysql-8.0
+
+steps:
+  - name: php7.4-mysql
+    image: nextcloudci/php7.4:php7.4-2
+    environment:
+      APP_NAME: flow_webhooks
+      CORE_BRANCH: master
+      DB: mysql
+    commands:
+      - bash ./tests/drone-server-setup.sh $APP_NAME $CORE_BRANCH $DB
+      - cd ../server
+      - php occ app:enable $APP_NAME
+      - cd apps/$APP_NAME
+      - composer install
+      - cd tests/phpunit/
+      - phpunit --configuration phpunit.xml
+
+services:
+  - name: mysql
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: owncloud
+      MYSQL_USER: oc_autotest
+      MYSQL_PASSWORD: owncloud
+      MYSQL_DATABASE: oc_autotest
+    command: [ "--default-authentication-plugin=mysql_native_password" ]
+    tmpfs:
+      - /var/lib/mysql
+
+trigger:
+  branch:
+    - master
+  event:
+    - pull_request
+    - push
+
+type: docker

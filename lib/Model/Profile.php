@@ -24,17 +24,47 @@ declare(strict_types=1);
 
 namespace OCA\FlowWebhooks\Model;
 
-class Profile {
+use function json_encode;
+
+class Profile implements \JsonSerializable {
+	/** @var int */
+	protected $id = null;
 	/** @var array */
 	protected $headerConstraints = [];
 	/** @var array */
 	protected $parameterConstraints = [];
 	/** @var string[] */
-	protected $displayTextTemplates = [''];
+	protected $displayTextTemplates = ['', '', '', ''];
 	/** @var string */
 	protected $urlTemplate = '';
 	/** @var string */
 	protected $iconUrlTemplate = '';
+	/** @var string */
+	protected $name = '';
+
+	public function setId(int $id): Profile {
+		$this->id = $id;
+		return $this;
+	}
+
+	public function getId(): ?int {
+		return $this->id;
+	}
+
+	/**
+	 * @throws \LengthException
+	 */
+	public function setName(string $name): Profile {
+		if(\mb_strlen($name, 'UTF-8') > 64) {
+			throw new \LengthException('Name must not be longer than 64 bytes');
+		}
+		$this->name = $name;
+		return $this;
+	}
+
+	public function getName(): string {
+		return $this->name;
+	}
 
 	public function getHeaderConstraints(): array {
 		return $this->headerConstraints;
@@ -45,6 +75,11 @@ class Profile {
 			$this->headerConstraints[$name] = [];
 		}
 		$this->headerConstraints[$name][] = $pattern;
+		return $this;
+	}
+
+	public function clearHeaderConstraints(): Profile {
+		$this->headerConstraints = [];
 		return $this;
 	}
 
@@ -60,12 +95,26 @@ class Profile {
 		return $this;
 	}
 
+	public function clearParameterConstraints(): Profile {
+		$this->parameterConstraints = [];
+		return $this;
+	}
+
 	public function getDisplayTextTemplate(int $verbosity): string {
 		return $this->displayTextTemplates[$verbosity] ?: $this->displayTextTemplates[0];
 	}
 
+	public function getAllDisplayTextTemplates(): array {
+		return $this->displayTextTemplates;
+	}
+
 	public function setDisplayTextTemplate(int $verbosity, string $template): Profile {
 		$this->displayTextTemplates[$verbosity] = $template;
+		return $this;
+	}
+
+	public function clearDisplayTextTemplate(): Profile {
+		$this->displayTextTemplates = [];
 		return $this;
 	}
 
@@ -85,5 +134,17 @@ class Profile {
 	public function setIconUrlTemplate(string $template): Profile {
 		$this->iconUrlTemplate = $template;
 		return $this;
+	}
+
+	public function jsonSerialize() {
+		return [
+			'id' => $this->getId(),
+			'name' => $this->getName(),
+			'headerConstraints' => $this->getHeaderConstraints(),
+			'parameterConstraints' => $this->getParameterConstraints(),
+			'displayTextTemplates' => $this->getAllDisplayTextTemplates(),
+			'urlTemplate' => $this->getUrlTemplate(),
+			'iconUrlTemplate' => $this->getIconUrlTemplate()
+		];
 	}
 }

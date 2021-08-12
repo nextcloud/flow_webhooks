@@ -27,6 +27,7 @@ namespace OCA\FlowWebhooks\AppInfo;
 use OCA\FlowWebhooks\Listener\RegisterChecksListener;
 use OCA\FlowWebhooks\Listener\RegisterEntityListener;
 use OCA\FlowWebhooks\Listener\UserDeletedListener;
+use OCA\FlowWebhooks\Middleware\ProfileAccess;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -49,6 +50,7 @@ class Application extends App implements IBootstrap {
 		$context->registerEventListener(RegisterEntitiesEvent::class, RegisterEntityListener::class);
 		$context->registerEventListener(RegisterChecksEvent::class, RegisterChecksListener::class);
 		$context->registerEventListener(UserDeletedEvent::class, UserDeletedListener::class);
+		$context->registerMiddleware(ProfileAccess::class);
 	}
 
 	public function boot(IBootContext $context): void {

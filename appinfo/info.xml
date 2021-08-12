@@ -12,9 +12,11 @@
     <category>workflow</category>
     <bugs>https://github.com/nextcloud/flow_webhooks</bugs>
     <dependencies>
-        <nextcloud min-version="20" max-version="20"/>
+        <nextcloud min-version="20" max-version="21"/>
     </dependencies>
 	<settings>
+		<admin>OCA\FlowWebhooks\Settings\Admin</admin>
+		<admin-section>OCA\FlowWebhooks\Settings\Section</admin-section>
 		<personal>OCA\FlowWebhooks\Settings\Personal</personal>
 		<personal-section>OCA\FlowWebhooks\Settings\Section</personal-section>
 	</settings>

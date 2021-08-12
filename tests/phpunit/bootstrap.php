@@ -22,9 +22,9 @@ declare(strict_types=1);
  *
  */
 
-use OCA\FlowWebhooks\AppInfo\Application;
+require_once __DIR__ . '/../../../../tests/bootstrap.php';
+require_once __DIR__.'/../../vendor/autoload.php';
 
-script('flow_webhooks', ['personal_settings']);
+\OC_App::loadApp('flow_webhooks');
 
-?>
-<div id="<?php p(Application::APP_ID); ?>"></div>
+OC_Hook::clear();

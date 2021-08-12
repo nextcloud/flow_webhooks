@@ -29,38 +29,29 @@ use OCA\FlowWebhooks\Service\Endpoint;
 use OCA\FlowWebhooks\Service\ProfileManager;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\IInitialStateService;
-use OCP\IUserSession;
 use OCP\Settings\ISettings;
 
-class Personal implements ISettings {
+class Admin implements ISettings {
 
 	/** @var IInitialStateService */
 	private $stateService;
 	/** @var Endpoint */
 	private $endpoint;
-	/** @var IUserSession */
-	private $userSession;
 	/** @var ProfileManager */
 	private $profileManager;
 
-	public function __construct(
-		IInitialStateService $stateService,
-		Endpoint $endpoint,
-		IUserSession $userSession,
-		ProfileManager $profileManager
-	) {
+	public function __construct(IInitialStateService $stateService, Endpoint $endpoint, ProfileManager $profileManager) {
 		$this->stateService = $stateService;
 		$this->endpoint = $endpoint;
-		$this->userSession = $userSession;
 		$this->profileManager = $profileManager;
 	}
 
 	public function getForm() {
-		$endpoint = $this->endpoint->getEndpointUrl(Application::CONSUMER_TYPE_USER, $this->userSession->getUser()->getUID());
+		$endpoint = $this->endpoint->getEndpointUrl(Application::CONSUMER_TYPE_INSTANCE, null);
 		$this->stateService->provideInitialState(Application::APP_ID, 'webhookEndpoint', $endpoint);
-		$profiles = $this->profileManager->getOwnerProfiles(Application::CONSUMER_TYPE_USER, $this->userSession->getUser()->getUID());
+		$profiles = $this->profileManager->getOwnerProfiles(Application::CONSUMER_TYPE_INSTANCE, null);
 		$this->stateService->provideInitialState(Application::APP_ID, 'profiles', $profiles);
-		$this->stateService->provideInitialState(Application::APP_ID, 'consumer', Application::CONSUMER_TYPE_USER);
+		$this->stateService->provideInitialState(Application::APP_ID, 'consumer', Application::CONSUMER_TYPE_INSTANCE);
 		return new TemplateResponse(Application::APP_ID, 'settings');
 	}
 
